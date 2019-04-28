@@ -58,7 +58,7 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% sta
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
                     domain = nyc_boroughs@data$borough)
-pal1<-colorFactor(palette = "Dark2", levels = unique(myfiles$facdomain))
+pal1<-colorFactor(palette = "Dark2", levels = unique(All_facility$facdomain))
 
 centers0 <- data.frame(gCentroid(nyc_boroughs,byid=TRUE))
 centers0$region <- as.character(nyc_boroughs@data$communityDistrict)
@@ -251,8 +251,8 @@ ui <- dashboardPage(
                                   
                                   box( 
                                       title = "Controls", status = "warning", solidHeader = TRUE,
-                                      selectInput("boro1","Select Community",cmd,selected = cmd[1]),
-                                      selectInput("boro2","Select Community"
+                                      selectInput("boro1","Select community to view on left side panel",cmd,selected = cmd[1]),
+                                      selectInput("boro2","Select community to view right side left panel"
                                                   ,cmd,selected = cmd[3])
                                   )
                            )
@@ -321,9 +321,9 @@ server <- function(input, output) {
         addProviderTiles("CartoDB.Positron")%>% 
         setView(cen1$x,cen1$y , zoom = 14) %>% 
         addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
-                                                                                                                                                              bringToFront = TRUE)) %>%
+                                                                                                                                                              bringToFront = F)) %>%
         addProviderTiles("CartoDB.Positron") %>%
-                addCircles(data = F1, radius=30 ,weight = 1, fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1) %>%
+        addCircles(data = F1, radius=30 ,popup = ~as.character(F1$facname),weight = 1, fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1,stroke = TRUE) %>%
         addLegend(pal = pal1, values = F1$facdomain, opacity = 2, title = "Factors of Parks",position = "bottomright")
       
     })
@@ -335,10 +335,10 @@ server <- function(input, output) {
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 
         setView(cen2$x,cen2$y , zoom = 14) %>% 
-        addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
-                                                                                                                                                              bringToFront = TRUE)) %>%
+        addPolygons(stroke=T,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                                                                                                                              bringToFront = FALSE)) %>%
         addProviderTiles("CartoDB.Positron") %>%
-        addCircles(data = F2, radius=30 ,weight = 1, fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1) %>%
+        addCircles(data = F2, radius=30 ,weight = 1, popup = ~as.character(F2$facname),fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1,stroke = TRUE) %>%
         addLegend(pal = pal1, values = F2$facdomain, opacity = 2, title = "Factors of Parks",position = "bottomright")
       
     })

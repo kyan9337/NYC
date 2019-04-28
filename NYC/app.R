@@ -11,6 +11,31 @@ library(readxl)
 library(stringr)
 library(tidyr)
 library(DT)
+library(leaflet)
+library(httr)
+library(rgdal)
+library(broom)
+library(plotly)
+library(readr)
+library(rgeos)
+library(leaflet)
+library(ggmap)
+library(varhandle)
+library(miceadds)
+library(tigris)
+map_data <- read.csv("F:/MSSP/MA676/JSM-New/NYC/map_data.csv")
+
+nycounties <- geojsonio::geojson_read("Community Districts.geojson",
+                                      what = "sp")
+# Or use the rgdal equivalent:
+# nycounties <- rgdal::readOGR("json/nycounties.geojson", "OGRGeoJSON")
+
+map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
+pal <- colorNumeric("viridis", NULL)
+
+chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
+            "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
+            "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
 
 ui <- dashboardPage(
     
@@ -29,6 +54,7 @@ ui <- dashboardPage(
                      menuItem("Mapping View",
                               tabName = "map_overall",
                               icon = icon("bed")
+                              
                      ),
                      menuItem("Data Visualization",
                               tabName = "Vis",
@@ -45,7 +71,7 @@ ui <- dashboardPage(
                               tabName = "Difference",
                               icon = icon("bar-chart-o"),
                              
-                                  radioButtons("Variable", "Compare Variable", 
+                                  radioButtons("ag", "Compare Variable", 
                                                c("A",
                                                  "B",
                                                  "C"),
@@ -56,7 +82,7 @@ ui <- dashboardPage(
                               tabName = "asdfasdf",
                               icon = icon("bar-chart-o"),
                               
-                              radioButtons("Variable", "Compare Variable", 
+                              radioButtons("adf", "Compare Variable", 
                                            c("A",
                                              "B",
                                              "C"),
@@ -131,9 +157,31 @@ ui <- dashboardPage(
         
         tabItems(
             tabItem(
-                tabName = "welcome",
+                tabName = "welcome"
+                ,
                 fluidRow(
                     mainPanel(imageOutput("header",width = "auto"))
+
+
+                ),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                fluidRow((
+                    column(width = 12,
+                           box(width=11,solidHeader = TRUE, status = "primary",
+                               title="Introduction",
+                               h4("This app includes data from two rowing teams at Boston University:
+                             Women Rowing Team and Light Weight Women Rowing Team.
+                             The primary purpose of this app is to help coaches to visualize
+                             athletes' performance and provide coaches more information for
+                             decision making.",size = 10,style = "font-family: 'Arial'," )
+                           ) )
+                )
                 )
                 
             )
@@ -146,6 +194,17 @@ ui <- dashboardPage(
                     column(width = 12,
                            box(title = "NYC Overview",width = NULL, solidHeader = TRUE,
                                leafletOutput("NYC_MAP",height = 500)
+                           ),
+                           box(
+                               title = "Controls", status = "primary", solidHeader = TRUE,
+                               
+                               
+                               radioButtons("Variable", "Compare Variable",
+                                           
+                                            chos,
+                                           
+                                            selected = chos[1])
+                               
                            )
                     )
                     
@@ -182,133 +241,14 @@ ui <- dashboardPage(
                 )
             ),
             tabItem(
-                tabName = "HRD",
+                tabName = "DT",
                 fluidRow(
                     tabBox(
-                        tabPanel("Individual Heart Rate Drop" , plotlyOutput("plot1"), width = 6, height = 550)
-                        
-                        ,tabPanel("Team Stats" , DT::dataTableOutput("table111"), width = 6, height = 550)
+                         tabPanel("Cleaned Data" , DT::dataTableOutput("tableNYC"), width = 12, height = 550),width = 24,height ="500px"
                     )
-                    ,
-                    box(
-                        title = "Controls", status = "primary", solidHeader = TRUE,
-                        
-                        dateRangeInput("dateRange333",
-                                       label = "Select Date",
-                                       start = "2018-09-05", end = Sys.Date())
-                        ,
-                        selectInput("Athlete3", "Select Athlete:", choices = c("A","B"), selected = "A")
-                        
-                    ))
+                    
+                    )
                 
-            ),
-            tabItem(
-                tabName = "Test30",
-                fluidRow(
-                    box(title = "Team Stats", status = "warning", collapsible = TRUE, 
-                        solidHeader = TRUE, DT::dataTableOutput("table30"), width = 6, height = 600),
-                    
-                    box(title = "Individual Split Time", status = "primary", collapsible = TRUE,
-                        solidHeader = TRUE, plotlyOutput("plot30"), width = 6, height = 600)
-                    ,
-                    box( 
-                        title = "Select Date", status = "warning", solidHeader = TRUE,
-                        selectInput("selectdat30", "30min Test Date", choices = c("A","B"))
-                    ),
-                    box(
-                        title = "Select Athlete", status = "primary", solidHeader = TRUE,
-                        
-                        selectInput("i30", "30min Test: Athletes' List", choices = c("A","B"))
-                    )
-                )
-            ),
-            tabItem(
-                tabName = "Test2k",
-                fluidRow(
-                    box(title = "Team Stats", status = "warning", collapsible = TRUE, 
-                        solidHeader = TRUE, DT::dataTableOutput("table2k"), width = 6, height = 600),
-                    
-                    box(title = "Individual Split Time", status = "primary", collapsible = TRUE,
-                        solidHeader = TRUE, plotlyOutput("plot2k"), width = 6, height = 600)
-                    ,
-                    box( 
-                        title = "Select Date", status = "warning", solidHeader = TRUE,
-                        selectInput("selectdat2k", "2k Test Date", choices = c("A","B"))
-                    ),
-                    box(
-                        title = "Select Athlete", status = "primary", solidHeader = TRUE,
-                        
-                        selectInput("i2k", "2k Test: Athletes' List", choices = c("A","B"))
-                    )
-                )
-            ),
-            tabItem(
-                tabName = "Test5k",
-                fluidRow(
-                    box(title = "Team Stats", status = "warning", collapsible = TRUE, 
-                        solidHeader = TRUE, DT::dataTableOutput("table5k"), width = 6, height = 600),
-                    
-                    box(title = "Individual Split Time", status = "primary", collapsible = TRUE,
-                        solidHeader = TRUE, plotlyOutput("plot5k"), width = 6, height = 600)
-                    ,
-                    box( 
-                        title = "Select Date", status = "warning", solidHeader = TRUE,
-                        selectInput("selectdat5k", "5k Test Date", choices = c("A","B"))
-                    ),
-                    box(
-                        title = "Select Athlete", status = "primary", solidHeader = TRUE,
-                        
-                        selectInput("i5k", "5k Test: Athletes' List", choices = c("A","B"))
-                    )
-                )
-            ),
-            tabItem(
-                tabName = "PP",
-                fluidRow(
-                    box(title = "PP Test Stats", status = "warning", collapsible = TRUE, 
-                        solidHeader = TRUE, DT::dataTableOutput("tablepp1"), width = 6, height = 600),
-                    
-                    
-                    
-                    box( 
-                        title = "Select Date", status = "primary", solidHeader = TRUE,
-                        selectInput("selectdatpp","PP Test Date", choices = c("A","B") )
-                    )
-                    
-                )
-            ),
-            tabItem(
-                tabName = "one",
-                fluidRow(
-                    
-                    
-                    box(title = "1 Minute Test Stats", status = "primary", collapsible = TRUE,
-                        solidHeader = TRUE, DT::dataTableOutput("tablepp2"), width = 6, height = 600)
-                    ,
-                    
-                    box(
-                        title = "Select Date", status = "primary", solidHeader = TRUE,
-                        selectInput("selectdat11","1min Test Date", choices = c("A","B") )
-                    )
-                )
-            ),
-            tabItem(
-                tabName = "TP",
-                fluidRow(
-                    tabBox(
-                        tabPanel("Team Stats", DT::dataTableOutput('tabletp'), width = 6, height = 550),
-                        tabPanel("Individual Performance", plotlyOutput("plottppt"),width =6, height = 550)
-                    )
-                    ,
-                    box( 
-                        title = "Select Date", status = "primary", solidHeader = TRUE,
-                        selectInput("selectdattp","  Training Pace Test Date", choices = c("A","B") )
-                    ),
-                    box(
-                        title = "Select Athlete", status = "primary", solidHeader = TRUE,
-                        selectInput("itppt", "Training Paces: Athletes' List", choice = c("A","B"))
-                    )
-                )
             ),
             tabItem(
                 tabName = "about",
@@ -332,27 +272,39 @@ ui <- dashboardPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+    
+  
+    
     output$NYC_MAP <- renderLeaflet({
+    
+        A <- as.character(input$Variable)
         
-       
-        m <- leaflet(map_data) %>%
+        pal <- colorNumeric(c( "#ffddf4", "#d7837f","#893843"),map_data[[A]])
+        leaflet(map_data) %>%
             addProviderTiles("CartoDB.Positron") %>%
             addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
-                        opacity = 1.0, fillOpacity = 0.9,
-                        fillColor = ~pal(log10(acres)),
+                        opacity = 1.0, fillOpacity = 0.7,
+                        fillColor = ~pal(map_data[[A]]),
                         highlightOptions = highlightOptions(color = "white", weight = 2,
                                                             bringToFront = TRUE),
-                        label = ~paste0(borocd, ": ", formatC(acres, big.mark = ","))) %>%
-            addLegend(pal = pal, values = ~log10(acres), opacity = 1.0,
-                      labFormat = labelFormat(transform = function(x) round(10^x)))
-        m
-    })
+                        label = ~paste0(CD.Name,": ",
+                                        formatC(map_data[[A]], big.mark = ","))) %>%
+            addLegend(pal = pal,title =  input$Variable, values = ~map_data[[A]], opacity = 1.0)
+            })
     
     output$header<- renderImage({
         Leg<-"www/NYC_header.jpg"
         list(src=Leg)
     },deleteFile = FALSE)  
-}
+
+    output$tableNYC <- DT::renderDataTable({
+      
+        DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "300px"),rownames= FALSE
+        )})
+    
+    
+    }
+
 
 # Run the application
 shinyApp(ui = ui, server = server)

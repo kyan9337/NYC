@@ -27,6 +27,7 @@ library(tigris)
 
 
 ```{r}
+map_data_nyc <- read.csv("map_data.csv")
 
 # r <- GET("http://data.beta.nyc//dataset/095da830-10ae-48d2-988d-8de0fa577e25/resource/2d58eeba-245b-4430-9cbc-92c4976447a6/download/2f5cbe0ccfa3494f808838be16a903c8nycboundaries.geojson")
 # # 
@@ -37,20 +38,20 @@ nycounties <- geojsonio::geojson_read("Community Districts.geojson",
 # Or use the rgdal equivalent:
 # nycounties <- rgdal::readOGR("json/nycounties.geojson", "OGRGeoJSON")
 
-map_data <- geo_join(nycounties, Bronx_1_indicators, "boro_cd", "borocd",how="inner")
+map_data <- geo_join(nycounties, map_data_nyc, "boro_cd", "borocd",how="inner")
 pal <- colorNumeric("viridis", NULL)
 
 
-
+A <- as.character("pop_2010")
 
 leaflet(map_data) %>%
   addProviderTiles("CartoDB.Positron") %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.9,
-    fillColor = ~pal(log10(acres)),
+    fillColor = ~pal(log10(map_data[[A]])),
     highlightOptions = highlightOptions(color = "white", weight = 2,
       bringToFront = TRUE),
-    label = ~paste0(borocd, ": ", formatC(acres, big.mark = ","))) %>%
-  addLegend(pal = pal, values = ~log10(acres), opacity = 1.0,
+    label = ~paste0(borocd, ": ", formatC(map_data[[A]], big.mark = ","))) %>%
+  addLegend(pal = pal, values = ~log10(map_data[[A]]), opacity = 1.0,
     labFormat = labelFormat(transform = function(x) round(10^x)))
 ```

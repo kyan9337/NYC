@@ -23,20 +23,19 @@ library(ggmap)
 library(varhandle)
 library(miceadds)
 library(tigris)
-map_data <- read.csv("F:/MSSP/MA676/JSM-New/NYC/map_data.csv")
+
+##########################
+map_data <- read.csv("F:/MSSP/MA676/NYC/NYC/map_data.csv")
 
 nycounties <- geojsonio::geojson_read("Community Districts.geojson",
                                       what = "sp")
-# Or use the rgdal equivalent:
-# nycounties <- rgdal::readOGR("json/nycounties.geojson", "OGRGeoJSON")
-
 map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
 pal <- colorNumeric("viridis", NULL)
 
 chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
             "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
             "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
-
+################################
 ui <- dashboardPage(
     
     skin = "purple",

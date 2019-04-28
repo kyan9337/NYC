@@ -1,0 +1,393 @@
+---
+title: "Floodplain_plots"
+author: "Tingrui Huang"
+date: "April 27, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Library
+```{r }
+library(tidyverse)
+library(plotly)
+```
+
+# Data
+```{r }
+dfi <- read.csv("all_borough_v2.csv")
+```
+
+# Floodplain - Number of buildings
+```{r }
+# Bronx and Manhattan
+  BM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BM)
+  
+# Bronx and Brooklyn
+    BB <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Brooklyn")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BB)
+  
+# Bronx and Queens
+  BQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BQ)
+  
+# Bronx and Staten Island
+  BSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BSI)
+  
+# Brooklyn and Queens
+  BklQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BklQ)
+  
+# Brooklyn and Manhattan
+  BklM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BklM)
+  
+# Brooklyn and Staten Island
+  BklSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(BklSI)
+  
+# Manhattan and Queens
+  ManQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(ManQ)
+  
+# Manhattan and Staten Island
+  ManSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(ManSI)
+  
+# Queens and Staten Island
+  QSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Queens" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")
+  ggplotly(QSI)
+```
+
+# Floodplain - Number of residential housing units
+```{r }
+# Bronx and Manhattan
+  BM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BM)
+  
+# Bronx and Brooklyn
+    BB <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Brooklyn")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BB)
+  
+# Bronx and Queens
+  BQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BQ)
+  
+# Bronx and Staten Island
+  BSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BSI)
+  
+# Brooklyn and Queens
+  BklQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BklQ)
+  
+# Brooklyn and Manhattan
+  BklM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BklM)
+  
+# Brooklyn and Staten Island
+  BklSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(BklSI)
+  
+# Manhattan and Queens
+  ManQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(ManQ)
+  
+# Manhattan and Staten Island
+  ManSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(ManSI)
+  
+# Queens and Staten Island
+  QSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Queens" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+  ggplotly(QSI)
+```
+
+# Floodplain - Lot area
+```{r }
+# Bronx and Manhattan
+  BM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BM)
+  
+# Bronx and Brooklyn
+    BB <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Brooklyn")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BB)
+  
+# Bronx and Queens
+  BQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BQ)
+  
+# Bronx and Staten Island
+  BSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BSI)
+  
+# Brooklyn and Queens
+  BklQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BklQ)
+  
+# Brooklyn and Manhattan
+  BklM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BklM)
+  
+# Brooklyn and Staten Island
+  BklSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(BklSI)
+  
+# Manhattan and Queens
+  ManQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(ManQ)
+  
+# Manhattan and Staten Island
+  ManSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(ManSI)
+  
+# Queens and Staten Island
+  QSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Queens" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+  ggplotly(QSI)
+```
+
+# Floodplain - Open space
+```{r }
+# Bronx and Manhattan
+  BM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BM)
+  
+# Bronx and Brooklyn
+    BB <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Brooklyn")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BB)
+  
+# Bronx and Queens
+  BQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BQ)
+  
+# Bronx and Staten Island
+  BSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Bronx" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BSI)
+  
+# Brooklyn and Queens
+  BklQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BklQ)
+  
+# Brooklyn and Manhattan
+  BklM <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Manhattan")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BklM)
+  
+# Brooklyn and Staten Island
+  BklSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Brooklyn" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(BklSI)
+  
+# Manhattan and Queens
+  ManQ <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Queens")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(ManQ)
+  
+# Manhattan and Staten Island
+  ManSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Manhattan" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(ManSI)
+  
+# Queens and Staten Island
+  QSI <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == "Queens" | borough == "Staten Island")%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+  ggplotly(QSI)
+```

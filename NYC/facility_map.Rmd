@@ -11,7 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #community borders(and us queen7 as example)
 ```{r}
-Queens<-read.csv("/Users/CindyWang/Desktop/Queens-7-facilities.csv")
+Queens<-read.csv("Queens-5-facilities.csv")
+
+
 colnames(Queens)[1:2]<-c("lng","lat")
 r <- GET("http://data.beta.nyc//dataset/472dda10-79b3-4bfb-9c75-e7bd5332ec0b/resource/d826bbc6-a376-4642-8d8b-3a700d701557/download/88472a1f6fd94fef97b8c06335db60f7nyccommunitydistricts.geojson")
 
@@ -53,3 +55,47 @@ leaflet(nyc_boroughs) %>%
 
 ```
 
+```{r}
+temp = list.files(pattern="*.csv")
+myfiles = do.call(rbind, lapply(temp, function(x) read.csv(x, stringsAsFactors = FALSE)))
+
+colnames(myfiles)[1:2]<-c("lng","lat")
+r <- GET("http://data.beta.nyc//dataset/472dda10-79b3-4bfb-9c75-e7bd5332ec0b/resource/d826bbc6-a376-4642-8d8b-3a700d701557/download/88472a1f6fd94fef97b8c06335db60f7nyccommunitydistricts.geojson")
+
+nyc_boroughs <- readOGR(content(r, "text"), "OGRGeoJSON", verbose = F)
+# nyc_boroughs_df <- tidy(nyc_boroughs)
+nyc_boroughs@data$borough <- ""
+manhattan_code <- c(101:112,164)
+bronx_code <- c(201:212,226:228)
+brooklyn_code <- c(301:318,355,356)
+queens_code <- c(401:414,480:484)
+staten_code <- c(501:503,595)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% manhattan_code, "Manhattan",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bronx_code, "Bronx",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% brooklyn_code, "Brooklyn",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
+
+
+# leaflet
+pal0 <- colorFactor(palette = "Pastel1",
+                    domain = nyc_boroughs@data$borough)
+pal1<-colorFactor(palette = "Dark2", levels = unique(myfiles$facdomain))
+
+centers0 <- data.frame(gCentroid(nyc_boroughs,byid=TRUE))
+centers0$region <- as.character(nyc_boroughs@data$communityDistrict)
+centers0_avg <- centers0 %>%
+  group_by(region) %>%
+  summarise(x=mean(x),y=mean(y))
+
+leaflet(nyc_boroughs) %>%
+  addProviderTiles("CartoDB.Positron")%>% 
+  addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                            bringToFront = TRUE)) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  setView(-73.91, 40.70, zoom = 10) %>%
+  addCircles(data = myfiles, radius=60 ,weight = 2, fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1) %>%
+  addLegend(pal = pal1, values = myfiles$facdomain, opacity = 2, title = "Factors of Parks",position = "bottomright")
+
+
+```

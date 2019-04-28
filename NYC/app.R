@@ -35,6 +35,37 @@ pal <- colorNumeric("viridis", NULL)
 chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
             "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
             "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
+
+cmd <- c("asdf"="101","sdfg"="102","fjdgd"="103")
+All_facility <- read.csv("All_facilities.csv")
+r <- GET("http://data.beta.nyc//dataset/472dda10-79b3-4bfb-9c75-e7bd5332ec0b/resource/d826bbc6-a376-4642-8d8b-3a700d701557/download/88472a1f6fd94fef97b8c06335db60f7nyccommunitydistricts.geojson")
+
+nyc_boroughs <- readOGR(content(r, "text"), "OGRGeoJSON", verbose = F)
+# nyc_boroughs_df <- tidy(nyc_boroughs)
+nyc_boroughs@data$borough <- ""
+manhattan_code <- c(101:112,164)
+bronx_code <- c(201:212,226:228)
+brooklyn_code <- c(301:318,355,356)
+queens_code <- c(401:414,480:484)
+staten_code <- c(501:503,595)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% manhattan_code, "Manhattan",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bronx_code, "Bronx",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% brooklyn_code, "Brooklyn",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
+nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
+
+
+# leaflet
+pal0 <- colorFactor(palette = "Pastel1",
+                    domain = nyc_boroughs@data$borough)
+pal1<-colorFactor(palette = "Dark2", levels = unique(myfiles$facdomain))
+
+centers0 <- data.frame(gCentroid(nyc_boroughs,byid=TRUE))
+centers0$region <- as.character(nyc_boroughs@data$communityDistrict)
+centers0_avg <- centers0 %>%
+  group_by(region) %>%
+  summarise(x=mean(x),y=mean(y))
+
 ################################
 ui <- dashboardPage(
     
@@ -77,15 +108,9 @@ ui <- dashboardPage(
                                                select = "B")
                               
                      ),
-                     menuItem("????????",
-                              tabName = "asdfasdf",
-                              icon = icon("bar-chart-o"),
-                              
-                              radioButtons("adf", "Compare Variable", 
-                                           c("A",
-                                             "B",
-                                             "C"),
-                                           select = "B")
+                     menuItem("Facilities",
+                              tabName = "facility",
+                              icon = icon("bar-chart-o")
                               
                      )
                      
@@ -212,26 +237,23 @@ ui <- dashboardPage(
             
             
             tabItem(
-                tabName = "ZEW",
+                tabName = "facility",
                 fluidRow(
                     column(width = 12,
-                           box( title = "Watts", status = "warning", solidHeader = TRUE,
-                                plotlyOutput("chart3"))
+                           box(  status = "primary", solidHeader = FALSE,
+                                leafletOutput("facility_1",height = 500))
                            
-                           ,box(title = "Heart Rate",status = "primary", solidHeader = TRUE,
-                                plotlyOutput("team")
+                           ,box(status = "primary", solidHeader = FALSE,
+                                leafletOutput("facility_2",height = 500)
                                 
                            ),
                            column(width = 12,
                                   
                                   box( 
                                       title = "Controls", status = "warning", solidHeader = TRUE,
-                                      dateRangeInput("dateRange233",
-                                                     label = "Select Date",
-                                                     start = 2018-09-05, end = Sys.Date()
-                                      ),
-                                      selectInput("athlete3","Select Athlete", 
-                                                  choices =  c("A","B"))
+                                      selectInput("boro1","Select Community",cmd,selected = cmd[1]),
+                                      selectInput("boro2","Select Community"
+                                                  ,cmd,selected = cmd[3])
                                   )
                            )
                            
@@ -290,6 +312,36 @@ server <- function(input, output) {
                                         formatC(map_data[[A]], big.mark = ","))) %>%
             addLegend(pal = pal,title =  input$Variable, values = ~map_data[[A]], opacity = 1.0)
             })
+    
+    output$facility_1 <- renderLeaflet({
+      
+      F1 <- filter(All_facility,borocd == input$boro1)
+      cen1 <- filter(centers0_avg,region == input$boro1)
+      leaflet(nyc_boroughs) %>%
+        addProviderTiles("CartoDB.Positron")%>% 
+        setView(cen1$x,cen1$y , zoom = 14) %>% 
+        addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                                                                                                                              bringToFront = TRUE)) %>%
+        addProviderTiles("CartoDB.Positron") %>%
+                addCircles(data = F1, radius=30 ,weight = 1, fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1) %>%
+        addLegend(pal = pal1, values = F1$facdomain, opacity = 2, title = "Factors of Parks",position = "bottomright")
+      
+    })
+    
+    output$facility_2 <- renderLeaflet({
+      
+      F2 <- filter(All_facility,borocd == input$boro2)
+      cen2 <- filter(centers0_avg,region == input$boro2)
+      leaflet(nyc_boroughs) %>%
+        addProviderTiles("CartoDB.Positron")%>% 
+        setView(cen2$x,cen2$y , zoom = 14) %>% 
+        addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                                                                                                                              bringToFront = TRUE)) %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        addCircles(data = F2, radius=30 ,weight = 1, fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1) %>%
+        addLegend(pal = pal1, values = F2$facdomain, opacity = 2, title = "Factors of Parks",position = "bottomright")
+      
+    })
     
     output$header<- renderImage({
         Leg<-"www/NYC_header.jpg"

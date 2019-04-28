@@ -25,7 +25,7 @@ library(miceadds)
 library(tigris)
 
 ##########################
-map_data <- read.csv("F:/MSSP/MA676/NYC/NYC/map_data.csv")
+map_data <- read.csv("map_data.csv")
 
 nycounties <- geojsonio::geojson_read("Community Districts.geojson",
                                       what = "sp")

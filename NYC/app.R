@@ -273,7 +273,10 @@ ui <- dashboardPage(
             ),
             tabItem(
                 tabName = "about",
-                imageOutput("row2"),
+                fluidRow(
+                  column(width = 12,
+                         box(  status = "primary", solidHeader = FALSE
+                               ))),
                 br(),
                 valueBoxOutput("userguide"),
                 br(),

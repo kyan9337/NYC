@@ -26,7 +26,7 @@ library(tigris)
 
 ##########################
 map_data <- read.csv("map_data.csv")
-
+map_data_nyc <- map_data
 nycounties <- geojsonio::geojson_read("Community Districts.geojson",
                                       what = "sp")
 map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
@@ -36,8 +36,29 @@ chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000"
             "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
             "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
 
-cmd <- c("asdf"="101","sdfg"="102","fjdgd"="103")
+cmd <- c(  "Williamsburg, Greenpoint"="301"  ,          "Woodhaven, Richmond Hill"="409"    ,        "Queens Village, Rosedale"="413" ,          
+           "Riverdale, Kingsbridge, Marble Hill"="208" ,"Bedford Stuyvesant"="303"           ,       "Bushwick"="304"  ,                         
+           "East New York, Starrett City"="305"    ,    "Park Slope, Carroll Gardens"="306"   ,      "Brooklyn Heights, Fort Greene"="302"  ,    
+           "Bedford Park, Norwood, Fordham"="207"  ,    "Highbridge, Concourse Village"="204"  ,     "University Hts., Fordham, Mt. Hope"="205" ,
+           "East Tremont, Belmont"="206"           ,    "Bensonhurst, Bath Beach"="311"       ,      "Borough Park, Ocean Parkway"="312"        ,
+           "Coney Island, Brighton Beach"="313"    ,    "Flatbush, Midwood"="314"              ,     "Sheepshead Bay, Gerritsen Beach"="315"    ,
+           "Chelsea, Clinton"="104"               ,     "Wakefield, Williamsbridge"="212"       ,    "Brownsville, Ocean Hill"="316"            ,
+           "East Flatbush, Rugby, Farragut"="317"   ,   "Canarsie, Flatlands"="318"              ,   "Astoria, Long Island City"="401"          ,
+           "Sunnyside, Woodside"="402"             ,    "Jackson Heights, North Corona"="403"     ,  "Elmhurst, South Corona"="404"             ,
+           "Flushing, Bay Terrace"="407"           ,    "Sunset Park, Windsor Terrace"="307"       , "Crown Heights North"="308"                ,
+           "Melrose, Mott Haven, Port Morris"="201" ,   "Hunts Point, Longwood"="202"               ,"Fresh Meadows, Briarwood"="408"           ,
+           "The Rockaways, Broad Channel"="414"    ,    "Ozone Park, Howard Beach"="410"    ,        "Bayside, Douglaston, Little Neck"="411"   ,
+           "West Side, Upper West Side"="107"     ,     "Upper East Side"="108"              ,       "Central Harlem"="110"                     ,
+           "East Harlem"="111"                   ,      "Washington Heights, Inwood"="112"    ,      "Stapleton, Port Richmond"="501"           ,
+           "Stuyvesant Town, Turtle Bay"="106"     ,    "Jamaica, St. Albans, Hollis"="412"    ,     "Pelham Pkwy, Morris Park, Laconia"="211"  ,
+           "New Springville, South Beach"="502"    ,    "Tottenville, Woodrow, Great Kills"="503",   "Midtown Business District"="105"          ,
+           "Soundview, Parkchester"="209"         ,     "Battery Park City, Tribeca"="101"        ,  "Greenwich Village, Soho"="102"            ,
+           "Manhattanville, Hamilton Heights"="109" ,   "Ridgewood, Glendale, Maspeth"="405"       , "Lower East Side, Chinatown"="103"         ,
+           "Morrisania, Crotona Park East"="203"   ,    "Crown Heights South, Wingate"="309"        ,"Bay Ridge, Dyker Heights"="310"           ,
+           "Throgs Nk., Co-op City, Pelham Bay"="210" , "Forest Hills, Rego Park"="406")
 All_facility <- read.csv("All_facilities.csv")
+factype <- as.character(unique(All_facility$facdomain))
+factype <- factype[-8]
 r <- GET("http://data.beta.nyc//dataset/472dda10-79b3-4bfb-9c75-e7bd5332ec0b/resource/d826bbc6-a376-4642-8d8b-3a700d701557/download/88472a1f6fd94fef97b8c06335db60f7nyccommunitydistricts.geojson")
 
 nyc_boroughs <- readOGR(content(r, "text"), "OGRGeoJSON", verbose = F)
@@ -251,9 +272,14 @@ ui <- dashboardPage(
                                   
                                   box( 
                                       title = "Controls", status = "warning", solidHeader = TRUE,
-                                      selectInput("boro1","Select community to view on left side panel",cmd,selected = cmd[1]),
-                                      selectInput("boro2","Select community to view right side left panel"
+                                      selectInput("boro1","Select community to view on left side panel:",cmd,selected = cmd[1]),
+                                      selectInput("boro2","Select community to view right side panel:"
                                                   ,cmd,selected = cmd[3])
+                                  ),
+                                  box( 
+                                    title = "Controls", status = "warning", solidHeader = TRUE,
+                                    checkboxGroupInput("boro11","Select facility type to view:",choices = factype ,selected = factype)
+                                  
                                   )
                            )
                            
@@ -319,6 +345,7 @@ server <- function(input, output) {
     output$facility_1 <- renderLeaflet({
       
       F1 <- filter(All_facility,borocd == input$boro1)
+      F1 <- filter(F1,facdomain %in% input$boro11)
       cen1 <- filter(centers0_avg,region == input$boro1)
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 
@@ -334,6 +361,7 @@ server <- function(input, output) {
     output$facility_2 <- renderLeaflet({
       
       F2 <- filter(All_facility,borocd == input$boro2)
+      F2 <- filter(F2,facdomain %in% input$boro11)
       cen2 <- filter(centers0_avg,region == input$boro2)
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 

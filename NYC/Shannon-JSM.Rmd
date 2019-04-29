@@ -1,0 +1,73 @@
+---
+title: "Map"
+author: "Qianhui Rong"
+date: "4/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly)
+
+```
+
+```{r}
+data <- read_csv("CD-Data.csv")
+name<-read_csv('New_York_City_Population_By_Community_Districts.csv')
+data %<>% dplyr::select(acres,cd_tot_bldgs,pop_2010, poverty_rate_nyc, crime_per_1000,count_parks, count_hosp_clinic, count_libraries, count_public_schools, pct_hh_rent_burd,borocd,cd_short_title)
+#add name column
+name$name_full<-paste0(name$Borough,' CD ',name$`CD Number`)
+name<-name[,c(3,9)]
+colnames(name)[2]<-'cd_short_title'
+data<-left_join(data,name,by='cd_short_title')
+data$build_dens<-data$cd_tot_bldgs/data$acres
+write_csv(data,'map_data.csv')
+```
+
+```{r}
+map_data<-read_csv('map_data.csv')
+#change colnames 
+names(map_data)<-c("Area","Buildings","Population","Poverty Rate",
+                   "Crime Rate","Parks","Health Facilities","Libraries",
+                   "Public Schools",
+                   "Rent Burden","borocd","cd_short_title","CD Name",
+                   "Building Density")
+nycounties <- geojsonio::geojson_read("Community Districts.geojson",what = "sp")
+# Or use the rgdal equivalent:
+# nycounties <- rgdal::readOGR("json/nycounties.geojson", "OGRGeoJSON")
+
+map_data <- geo_join(nycounties,map_data, "boro_cd", "borocd",how="inner")
+pal <- colorNumeric(c( "#ffddf4", "#d7837f","#893843"),map_data$build_dens)
+leaflet(map_data) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.7,
+    fillColor = ~pal(build_dens),
+    highlightOptions = highlightOptions(color = "white", weight = 2,
+      bringToFront = TRUE),
+    label = ~paste0(CD.Name,": ",
+                    formatC(build_dens, big.mark = ","))) %>%
+  addLegend(pal = pal, values = ~build_dens, opacity = 1.0,title = 'Number of Building per Acre')
+```
+
+```{r}
+#Rent plotly
+rent<-read.csv("Rent Plotly.csv")
+names(rent)<-c("year","median","average","fraction")
+#another y axis
+ay <- list(
+  tickfont = list(color = "black"),
+  overlaying = "y",
+  side = "right",
+  title = "Annual Rent as a Fraction of Income"
+)
+
+p <- plot_ly(rent,x=~year) %>%
+  add_lines(y = ~average, name = "Average Rent",color="Ixos") %>%
+  add_lines(y = ~fraction, name = "Fraction of Income", color="Primadur",yaxis = "y2") %>%
+  layout(
+    title = "New York City Gross Rent", yaxis2 = ay,
+    xaxis = list(title="Year"),
+    yaxis=list(title="Average Rent")
+  )
+```

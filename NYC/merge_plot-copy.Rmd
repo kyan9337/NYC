@@ -1,0 +1,158 @@
+---
+title: "Merge"
+author: "Tingrui Huang"
+date: "April 27, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Library
+```{r }
+library(tidyverse)
+library(plotly)
+```
+
+
+
+# Join table & write csv
+```{r }
+dfi <- left_join(ab, cd_t_boro, by=c("borocd"="code"))
+write.csv(dfi, "all_borough_v2.csv")
+```
+
+
+#Different indicators
+```{r}
+##rent burdern 
+burdern<-function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = pct_hh_rent_burd, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+burdern("Bronx","Manhattan")
+
+##Mean Commute to Work
+commute<- function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = mean_commute, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+commute("Bronx","Manhattan")
+
+##Crime rate
+crime<-function(a,b){
+  q<-dfi%>%
+    group_by(subborough)%>%
+    filter(borough == a | borough == b)%>%
+    plot_ly(labels = ~subborough, values = ~crime_per_1000)%>%
+    add_pie(hole = 0.6)%>%
+    layout(title = "Crime rate",  showlegend = F,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  q
+
+}
+
+crime("Bronx","Manhattan")
+
+##Education
+education<-function(a,b){
+  q<-dfi%>%
+    group_by(subborough)%>%
+    filter(borough == a | borough == b)%>%
+    plot_ly(labels = ~subborough, values = ~pct_bach_deg)%>%
+    add_pie(hole = 0.6)%>%
+    layout(title = "Crime rate",  showlegend = F,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  q
+}
+
+education("Bronx","Manhattan")
+
+##NYCgov Poverty Measure
+
+poverty<-function(a,b){
+    q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = poverty_rate, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+poverty("Bronx","Manhattan")
+
+
+```
+
+#Built environment
+```{r}
+##schools 
+school<-function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = count_public_schools, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+school("Bronx","Manhattan")
+
+##library
+library<- function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = count_libraries, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+library("Bronx","Manhattan")
+
+##hospitals
+hospitals<-function(a,b){
+  q<-dfi%>%
+    group_by(subborough)%>%
+    filter(borough == a | borough == b)%>%
+    plot_ly(labels = ~subborough, values = ~count_hosp_clinic)%>%
+    add_pie(hole = 0.6)%>%
+    layout(title = "hospitals and clinics",  showlegend = F,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  q
+
+}
+
+hospitals("Bronx","Manhattan")
+
+##public facility
+public_facility<-function(a,b){
+  q<-dfi%>%
+    group_by(subborough)%>%
+    filter(borough == a | borough == b)%>%
+    plot_ly(labels = ~subborough, values = ~lot_area_public_facility_institution)%>%
+    add_pie(hole = 0.6)%>%
+    layout(title = "public facility",  showlegend = F,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  q
+}
+
+public_facility("Bronx","Manhattan")
+
+
+
+
+
+```
+
+

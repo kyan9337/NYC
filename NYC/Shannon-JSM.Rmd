@@ -71,3 +71,24 @@ p <- plot_ly(rent,x=~year) %>%
     yaxis=list(title="Average Rent")
   )
 ```
+
+Job listing in community
+```{r}
+job<-read_csv("DOB_Job_Application_Filings.csv")
+job<-job[,c(3,14,91,92)]
+colnames(job) <- c("Borough","borocd","lat","long")
+job <- na.omit(job)
+job %>% 
+  sample_n(12000,weight = borocd) ->job2
+job_data <- geo_join(nycounties,job2, "boro_cd", "borocd",how="inner")
+
+job3<-job[,-c(3,4)]
+job3$borocd <- as.character(job3$borocd)
+job3 %<>% dplyr::group_by(borocd)
+
+leaflet(data = job2) %>% addTiles() %>%
+   addProviderTiles("CartoDB.Positron") %>%
+   addCircleMarkers(~long, ~lat,
+                    popup = ~as.character(Borough),
+                    opacity = 0.1,radius = 0.3)
+```

@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly)
+pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly,lubridate)
 
 ```
 
@@ -91,4 +91,18 @@ leaflet(data = job) %>% addTiles() %>%
   addMarkers(popup = ~as.character(borocd),
   clusterOptions = markerClusterOptions()
 )
+```
+
+Shooting 
+```{r}
+shooting<-read.csv("NYPD_Shooting_Incident_Data__Year_To_Date_.csv")
+shooting$OCCUR_DATE<-as.Date(shooting$OCCUR_DATE,format="%m/%d/%Y")
+shooting<-shooting[,c(2,4,7,17,18)]
+
+leaflet(data = shooting) %>% addTiles() %>%
+   addProviderTiles("CartoDB.Positron") %>%
+  addMarkers(lat =~Latitude,lng=~Longitude,popup = ~as.character(BORO),
+             clusterOptions = markerClusterOptions()) %>% 
+  addCircleMarkers(radius = 2.5, color="red", stroke = FALSE, fillOpacity = 0.5)
+  
 ```

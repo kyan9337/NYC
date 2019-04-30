@@ -106,3 +106,4 @@ leaflet(data = shooting) %>% addTiles() %>%
   addCircleMarkers(radius = 2.5, color="red", stroke = FALSE, fillOpacity = 0.5)
   
 ```
+

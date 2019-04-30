@@ -74,9 +74,12 @@ p <- plot_ly(rent,x=~year) %>%
 
 Job listing in community
 ```{r}
-job<-read_csv("job_data.csv")
-job<-job[,c(3,14,91,92)]
-colnames(job) <- c("Borough","borocd","lat","long")
+job<-read_csv("School_Locations.csv")
+job<-job[,c(4,18,39,40)]
+
+colnames(job) <- c("location","borocd","lat","long")
+job$long <- as.numeric(job$long)
+job <- job[-1804,]
 job <- na.omit(job)
 job %>% 
   sample_n(12000,weight = borocd) ->job2
@@ -88,7 +91,7 @@ job3 %<>% dplyr::group_by(borocd)
 
 leaflet(data = job) %>% addTiles() %>%
    addProviderTiles("CartoDB.Positron") %>%
-  addMarkers(popup = ~as.character(borocd),
+  addMarkers(popup = ~as.character(location),
   clusterOptions = markerClusterOptions()
 )
 ```

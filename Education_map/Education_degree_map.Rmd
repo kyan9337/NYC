@@ -12,7 +12,7 @@ library(rgdal)
 
 education_degree<-read.csv("../Education_map/Education_degree.csv")
 School_Locations<-read.csv("../Education_map/School_Locations.csv")
-
+colnames(education_degree)[1] <- "communityDistrict"
 School_Locations$Lon[134]<-gsub("\\(","",School_Locations$Lon[134])
 School_Locations$Lon<-as.numeric(as.character(School_Locations$Lon))
 School_Locations<-School_Locations[-which(is.na(School_Locations$Lon)),]

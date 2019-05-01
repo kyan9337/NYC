@@ -1,4 +1,4 @@
-
+ 
 library(shiny)
 library(shinydashboard)
 library(dplyr)
@@ -81,6 +81,9 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bro
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
 
+count <- All_facility%>%
+  group_by(borocd,facdomain)%>%
+  summarise(n = n())
 
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
@@ -414,6 +417,13 @@ ui <- dashboardPage(
             tabItem(
                 tabName = "facility",
                 fluidRow(
+                    valueBoxOutput("progressBox1"),
+                    valueBoxOutput("progressBox2"),
+                    valueBoxOutput("progressBox3"),
+                    valueBoxOutput("progressBox4"),
+                    valueBoxOutput("progressBox5"),
+                    valueBoxOutput("progressBox6"),
+                    valueBoxOutput("progressBox7"),
                     column(width = 12,
                            box(  status = "primary", solidHeader = FALSE,
                                 leafletOutput("facility_1",height = 500))
@@ -495,6 +505,63 @@ server <- function(input, output) {
                                         formatC(map_data[[A]], big.mark = ","))) %>%
             addLegend(pal = pal,title =  input$Variable, values = ~map_data[[A]], opacity = 1.0)
             })
+    output$progressBox1 <- renderValueBox({
+      
+      fac1 <- filter(count, borocd ==input$boro1 & facdomain =="Administration of Government" )
+      valueBox(
+        paste0(fac1$n), "Administration of Government", icon = icon("list"),
+        color = "purple"
+      )
+    })
+    
+    output$progressBox2 <- renderValueBox({
+      
+      fac2 <- filter(count, borocd ==input$boro1 & facdomain =="Core Infrastructure and Transportation" )
+      valueBox(
+        paste0(fac2$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
+        color = "green"
+      )
+    })
+    output$progressBox3 <- renderValueBox({
+      
+      fac3 <- filter(count, borocd ==input$boro1 & facdomain =="Education, Child Welfare, and Youth" )
+      valueBox(
+        paste0(fac3$n), "Education, Child Welfare, and Youth", icon = icon("city"),
+        color = "orange"
+      )
+    })
+    
+    output$progressBox4 <- renderValueBox({
+      fac4 <- filter(count, borocd ==input$boro1 & facdomain =="Health and Human Services" )
+      valueBox(
+        paste0(fac4$n), "Health and Human Services", icon = icon("ambulance"),
+        color = "olive"
+      )
+    })
+    
+    output$progressBox5 <- renderValueBox({
+      fac5 <- filter(count, borocd ==input$boro1 & facdomain =="Libraries and Cultural Programs" )
+      valueBox(
+        paste0(fac5$n), "Libraries and Cultural Programs", icon = icon("archive"),
+        color = "yellow"
+      )
+    })
+    
+    output$progressBox6 <- renderValueBox({  
+      fac6 <- filter(count, borocd ==input$boro1 & facdomain =="Parks, Gardens, and Historical Sites" )
+      valueBox(
+        paste0(fac6$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
+        color = "lime"
+      )
+    })
+    
+    output$progressBox7 <- renderValueBox({
+      fac7 <- filter(count, borocd ==input$boro1 & facdomain =="Public Safety, Emergency Services, and Administration of Justice" )
+      valueBox(
+        paste0(fac7$n), "	Public Safety, Emergency Services, and Administration of Justice", icon = icon("building"),
+        color = "maroon"
+      )
+    })
     
     output$facility_1 <- renderLeaflet({
       

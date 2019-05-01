@@ -1,0 +1,82 @@
+---
+title: "Untitled"
+author: "Jianhao Yan"
+date: "4/30/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(sunburstR)
+library(TraMineR)
+library(pipeR)
+dfi <- read.csv("all_borough_v2.csv")
+```
+
+
+
+
+
+```{r}
+#prepare data
+facilities <- read_csv("NYC/All_facilities.csv")
+
+
+sun_1<-dfi[,c(42,43,44,45,198,199)]
+dat<-dfi%>%
+  group_by(borough, subborough)%>%
+  arrange(borough)%>%
+  arrange(subborough)
+library(reshape)
+mydata<-melt(sun_1,id.vars=c("borough","subborough"),variable.name="Year",value.name="Sale")
+```
+
+
+```{r}
+library(htmltools)
+#> Warning: package 'htmltools' was built under R version 3.4.4
+library(d3r)
+
+dat <- data.frame(
+  level1 = mydata$borough,
+  level2 = mydata$subborough,
+  level3 = mydata$variable,
+  size = mydata$value,
+  stringsAsFactors = FALSE
+)
+
+
+knitr::kable(dat)
+
+
+```
+
+
+```{r}
+library(d3r)
+tree <- d3_nest(dat, value_cols = "size")
+#
+```
+
+
+
+
+
+```{r}
+sb3 <- sund2b(tree, width="100%")
+
+div(
+  style="display: flex; align-items:center;",
+  sb3
+)
+```
+
+
+
+
+
+
+

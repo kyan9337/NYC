@@ -124,6 +124,18 @@ ui <- dashboardPage(
                               icon = icon("bar-chart-o")
                               
                      ),
+                     menuItem("flood risk",
+                              tabName = "wifi",
+                              icon = icon("bar-chart-o")
+                              
+                     ),
+                     menuItem("Safety",
+                              tabName = "safety",
+                              icon = icon("bar-chart-o")
+                              
+                     ),
+                    
+                     
                      menuItem("Facilities",
                               tabName = "facility",
                               icon = icon("bar-chart-o")
@@ -131,7 +143,7 @@ ui <- dashboardPage(
                      )
                      
             ),
-            
+            menuItem("Education", tabName = "education", icon = icon("question-circle")),
             menuItem("About", tabName = "about", icon = icon("question-circle"))
         )
     ),

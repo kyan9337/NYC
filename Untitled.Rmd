@@ -26,12 +26,16 @@ facilities <- read_csv("NYC/All_facilities.csv")
 
 
 sun_1<-dfi[,c(42,43,44,45,198,199)]
-dat<-dfi%>%
-  group_by(borough, subborough)%>%
-  arrange(borough)%>%
-  arrange(subborough)
+sun_1$def<-rep("facility", length(sun_1$count_public_schools))
+sun_2<-dfi[,c(33,198,199)]
+sun_2$def<-rep("lots",length(sun_2$lots_public_facility_institution))
 library(reshape)
-mydata<-melt(sun_1,id.vars=c("borough","subborough"),variable.name="Year",value.name="Sale")
+mydata1<-melt(sun_1,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata2<-melt(sun_2,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata<-rbind(mydata1,mydata2)
+
 ```
 
 
@@ -43,7 +47,8 @@ library(d3r)
 dat <- data.frame(
   level1 = mydata$borough,
   level2 = mydata$subborough,
-  level3 = mydata$variable,
+  level3 = mydata$def,
+  level4 = mydata$variable,
   size = mydata$value,
   stringsAsFactors = FALSE
 )

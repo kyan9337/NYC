@@ -1,0 +1,60 @@
+---
+title: "Facility_bigpie"
+author: "Tingrui Huang, Jinfei Xue"
+date: "May 1, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Library
+```{R }
+library(tidyverse)
+library(magrittr)
+library(plotly)
+```
+# Data
+```{R }
+dff <- read.csv("All_facilities.csv")
+dff <- dff[,-c(1:4)]
+dff %<>% group_by(facdomain,borocd) %>% summarise(count=n()) %>% na.omit()
+```
+
+## Pie Chart
+```{R warning=FALSE}
+facility <- function(borough_code){
+  p <- dff %>% 
+        group_by(facdomain) %>%
+        filter(borocd==borough_code) %>%
+        plot_ly(labels=~facdomain, values=~count) %>%
+        add_pie(hole = 0.6) %>%
+        layout(title = paste0("Number of Facilities in", " ", borough_code),  showlegend = F,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  p
+}
+# Example
+facility(102)
+```
+
+## Barplot
+
+```{r}
+dff$borocd <- as.factor(dff$borocd)
+facility_bar <- dff %>%
+  filter(borocd==101|borocd==102) %>%
+  ggplot(aes(x=facdomain, y=count, fill=borocd)) +
+  geom_bar(stat = "identity", position = position_dodge())+   
+  theme(axis.text.x = element_text(hjust = 1,angle = 45),legend.position = 'right')+
+    labs(x="Type of Facilities", y="the Number of facilities",
+         title="Comparison between Different Sub-boroughs")+ 
+  scale_fill_hue(c=45, l=80)
+ggplotly(facility_bar)
+```
+
+
+
+
+

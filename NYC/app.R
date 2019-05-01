@@ -23,6 +23,7 @@ library(ggmap)
 library(varhandle)
 library(miceadds)
 library(tigris)
+library(slickR)
 
 ##########################
 map_data <- read.csv("map_data.csv")
@@ -120,13 +121,7 @@ ui <- dashboardPage(
                      tabName = "Compare", icon = icon("venus"),
                      menuItem("Simple comparsion",
                               tabName = "Difference",
-                              icon = icon("bar-chart-o"),
-                             
-                                  radioButtons("ag", "Compare Variable", 
-                                               c("A",
-                                                 "B",
-                                                 "C"),
-                                               select = "B")
+                              icon = icon("bar-chart-o")
                               
                      ),
                      menuItem("Facilities",
@@ -205,7 +200,8 @@ ui <- dashboardPage(
                 tabName = "welcome"
                 ,
                 fluidRow(
-                    mainPanel(imageOutput("header",width = "auto"))
+                  mainPanel(
+                    slickROutput("slickr", width="150%"))
 
 
                 ),
@@ -217,14 +213,10 @@ ui <- dashboardPage(
                 br(),
                 br(),
                 fluidRow((
-                    column(width = 12,
-                           box(width=11,solidHeader = TRUE, status = "primary",
+                    column(width = 6,
+                           box(width=12,solidHeader = FALSE, background= "olive",
                                title="Introduction",
-                               h4("This app includes data from two rowing teams at Boston University:
-                             Women Rowing Team and Light Weight Women Rowing Team.
-                             The primary purpose of this app is to help coaches to visualize
-                             athletes' performance and provide coaches more information for
-                             decision making.",size = 10,style = "font-family: 'Arial'," )
+                               h4("This APP is designed to explore New York City by visualization",size = 10,style = "font-family: 'Arial'," )
                            ) )
                 )
                 )
@@ -374,10 +366,10 @@ server <- function(input, output) {
       
     })
     
-    output$header<- renderImage({
-        Leg<-"www/NYC_header.jpg"
-        list(src=Leg)
-    },deleteFile = FALSE)  
+    output$slickr <- renderSlickR({
+      imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
+      slickR(imgs)
+    })
 
     output$tableNYC <- DT::renderDataTable({
       

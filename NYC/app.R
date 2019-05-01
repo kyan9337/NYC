@@ -1,3 +1,4 @@
+ 
 library(shiny)
 library(shinydashboard)
 library(dplyr)
@@ -23,6 +24,11 @@ library(ggmap)
 library(varhandle)
 library(miceadds)
 library(tigris)
+library(slickR)
+library(devtools)
+install_github("nik01010/dashboardthemes")
+library(dashboardthemes)
+
 
 ##########################
 map_data <- read.csv("map_data.csv")
@@ -75,6 +81,9 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bro
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
 
+count <- All_facility%>%
+  group_by(borocd,facdomain)%>%
+  summarise(n = n())
 
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
@@ -88,11 +97,155 @@ centers0_avg <- centers0 %>%
   summarise(x=mean(x),y=mean(y))
 
 ################################
+logo_blue_gradient <- shinyDashboardLogoDIY(
+  
+  boldText = "NYC Profile"
+  ,mainText = ""
+  ,textSize = 16
+  ,badgeText = "MSSP"
+  ,badgeTextColor = "rgb(105,105,105)"
+  ,badgeTextSize = 2
+  ,badgeBackColor = "#40E0D0"
+  ,badgeBorderRadius = 3
+  
+)
+
+theme_blue_gradient <- shinyDashboardThemeDIY(
+  
+  ### general
+  appFontFamily = "Arial"
+  ,appFontColor = "rgb(0,0,0)"
+  ,primaryFontColor = "rgb(0,0,0)"
+  ,infoFontColor = "rgb(0,0,0)"
+  ,successFontColor = "rgb(0,0,0)"
+  ,warningFontColor = "rgb(0,0,0)"
+  ,dangerFontColor = "rgb(0,0,0)"
+  ,bodyBackColor = "rgb(248,248,248)"
+  
+  ### header
+  ,logoBackColor = "rgb(23,103,124)"
+  
+  ,headerButtonBackColor = "rgb(238,238,238)"
+  ,headerButtonIconColor = "rgb(75,75,75)"
+  ,headerButtonBackColorHover = "rgb(210,210,210)"
+  ,headerButtonIconColorHover = "rgb(0,0,0)"
+  
+  ,headerBackColor = "rgb(238,238,238)"
+  ,headerBoxShadowColor = "#aaaaaa"
+  ,headerBoxShadowSize = "2px 2px 2px"
+  
+  ### sidebar
+  ,sidebarBackColor = cssGradientThreeColors(
+    direction = "down"
+    ,colorStart = "rgb(20,97,117)"
+    ,colorMiddle = "rgb(56,161,187)"
+    ,colorEnd = "rgb(3,22,56)"
+    ,colorStartPos = 0
+    ,colorMiddlePos = 50
+    ,colorEndPos = 100
+  )
+  ,sidebarPadding = 0
+  
+  ,sidebarMenuBackColor = "transparent"
+  ,sidebarMenuPadding = 0
+  ,sidebarMenuBorderRadius = 0
+  
+  ,sidebarShadowRadius = "3px 5px 5px"
+  ,sidebarShadowColor = "#aaaaaa"
+  
+  ,sidebarUserTextColor = "rgb(255,255,255)"
+  
+  ,sidebarSearchBackColor = "rgb(55,72,80)"
+  ,sidebarSearchIconColor = "rgb(153,153,153)"
+  ,sidebarSearchBorderColor = "rgb(55,72,80)"
+  
+  ,sidebarTabTextColor = "rgb(255,255,255)"
+  ,sidebarTabTextSize = 13
+  ,sidebarTabBorderStyle = "none none solid none"
+  ,sidebarTabBorderColor = "rgb(35,106,135)"
+  ,sidebarTabBorderWidth = 1
+  
+  ,sidebarTabBackColorSelected = cssGradientThreeColors(
+    direction = "right"
+    ,colorStart = "rgba(44,222,235,1)"
+    ,colorMiddle = "rgba(44,222,235,1)"
+    ,colorEnd = "rgba(0,255,213,1)"
+    ,colorStartPos = 0
+    ,colorMiddlePos = 30
+    ,colorEndPos = 100
+  )
+  ,sidebarTabTextColorSelected = "rgb(0,0,0)"
+  ,sidebarTabRadiusSelected = "0px 20px 20px 0px"
+  
+  ,sidebarTabBackColorHover = cssGradientThreeColors(
+    direction = "right"
+    ,colorStart = "rgba(44,222,235,1)"
+    ,colorMiddle = "rgba(44,222,235,1)"
+    ,colorEnd = "rgba(0,255,213,1)"
+    ,colorStartPos = 0
+    ,colorMiddlePos = 30
+    ,colorEndPos = 100
+  )
+  ,sidebarTabTextColorHover = "rgb(50,50,50)"
+  ,sidebarTabBorderStyleHover = "none none solid none"
+  ,sidebarTabBorderColorHover = "rgb(75,126,151)"
+  ,sidebarTabBorderWidthHover = 1
+  ,sidebarTabRadiusHover = "0px 20px 20px 0px"
+  
+  ### boxes
+  ,boxBackColor = "rgb(255,255,255)"
+  ,boxBorderRadius = 5
+  ,boxShadowSize = "0px 1px 1px"
+  ,boxShadowColor = "rgba(0,0,0,.1)"
+  ,boxTitleSize = 16
+  ,boxDefaultColor = "rgb(210,214,220)"
+  ,boxPrimaryColor = "rgba(44,222,235,1)"
+  ,boxInfoColor = "rgb(210,214,220)"
+  ,boxSuccessColor = "rgba(0,255,213,1)"
+  ,boxWarningColor = "rgb(244,156,104)"
+  ,boxDangerColor = "rgb(255,88,55)"
+  
+  ,tabBoxTabColor = "rgb(255,255,255)"
+  ,tabBoxTabTextSize = 14
+  ,tabBoxTabTextColor = "rgb(0,0,0)"
+  ,tabBoxTabTextColorSelected = "rgb(0,0,0)"
+  ,tabBoxBackColor = "rgb(255,255,255)"
+  ,tabBoxHighlightColor = "rgba(44,222,235,1)"
+  ,tabBoxBorderRadius = 5
+  
+  ### inputs
+  ,buttonBackColor = "rgb(245,245,245)"
+  ,buttonTextColor = "rgb(0,0,0)"
+  ,buttonBorderColor = "rgb(200,200,200)"
+  ,buttonBorderRadius = 5
+  
+  ,buttonBackColorHover = "rgb(235,235,235)"
+  ,buttonTextColorHover = "rgb(100,100,100)"
+  ,buttonBorderColorHover = "rgb(200,200,200)"
+  
+  ,textboxBackColor = "rgb(255,255,255)"
+  ,textboxBorderColor = "rgb(200,200,200)"
+  ,textboxBorderRadius = 5
+  ,textboxBackColorSelect = "rgb(245,245,245)"
+  ,textboxBorderColorSelect = "rgb(200,200,200)"
+  
+  ### tables
+  ,tableBackColor = "rgb(255,255,255)"
+  ,tableBorderColor = "rgb(240,240,240)"
+  ,tableBorderTopSize = 1
+  ,tableBorderRowSize = 1
+  
+)
+
 ui <- dashboardPage(
+  # skin = "purple",
+  dashboardHeader(
+    ### changing logo
+    title = logo_blue_gradient
     
-    skin = "purple",
-    dashboardHeader(title = "NYC Profile "
-                    ),
+    #title = "NYC Profile "
+  ),
+    
     dashboardSidebar(
         
         
@@ -120,15 +273,21 @@ ui <- dashboardPage(
                      tabName = "Compare", icon = icon("venus"),
                      menuItem("Simple comparsion",
                               tabName = "Difference",
-                              icon = icon("bar-chart-o"),
-                             
-                                  radioButtons("ag", "Compare Variable", 
-                                               c("A",
-                                                 "B",
-                                                 "C"),
-                                               select = "B")
+                              icon = icon("bar-chart-o")
                               
                      ),
+                     menuItem("flood risk",
+                              tabName = "wifi",
+                              icon = icon("bar-chart-o")
+                              
+                     ),
+                     menuItem("Safety",
+                              tabName = "safety",
+                              icon = icon("bar-chart-o")
+                              
+                     ),
+                    
+                     
                      menuItem("Facilities",
                               tabName = "facility",
                               icon = icon("bar-chart-o")
@@ -136,12 +295,13 @@ ui <- dashboardPage(
                      )
                      
             ),
-            
+            menuItem("Education", tabName = "education", icon = icon("question-circle")),
             menuItem("About", tabName = "about", icon = icon("question-circle"))
         )
     ),
     
     dashboardBody(
+      theme_blue_gradient,
         tags$head(tags$style(HTML('
                               .same-row {
                               max-width: 200px;
@@ -205,7 +365,8 @@ ui <- dashboardPage(
                 tabName = "welcome"
                 ,
                 fluidRow(
-                    mainPanel(imageOutput("header",width = "auto"))
+                  mainPanel(
+                    slickROutput("slickr", width="150%"))
 
 
                 ),
@@ -217,14 +378,10 @@ ui <- dashboardPage(
                 br(),
                 br(),
                 fluidRow((
-                    column(width = 12,
-                           box(width=11,solidHeader = TRUE, status = "primary",
+                    column(width = 6,
+                           box(width=12,solidHeader = FALSE, background= "olive",
                                title="Introduction",
-                               h4("This app includes data from two rowing teams at Boston University:
-                             Women Rowing Team and Light Weight Women Rowing Team.
-                             The primary purpose of this app is to help coaches to visualize
-                             athletes' performance and provide coaches more information for
-                             decision making.",size = 10,style = "font-family: 'Arial'," )
+                               h4("This APP is designed to explore New York City by visualization",size = 10,style = "font-family: 'Arial'," )
                            ) )
                 )
                 )
@@ -260,6 +417,13 @@ ui <- dashboardPage(
             tabItem(
                 tabName = "facility",
                 fluidRow(
+                    valueBoxOutput("progressBox1"),
+                    valueBoxOutput("progressBox2"),
+                    valueBoxOutput("progressBox3"),
+                    valueBoxOutput("progressBox4"),
+                    valueBoxOutput("progressBox5"),
+                    valueBoxOutput("progressBox6"),
+                    valueBoxOutput("progressBox7"),
                     column(width = 12,
                            box(  status = "primary", solidHeader = FALSE,
                                 leafletOutput("facility_1",height = 500))
@@ -341,6 +505,63 @@ server <- function(input, output) {
                                         formatC(map_data[[A]], big.mark = ","))) %>%
             addLegend(pal = pal,title =  input$Variable, values = ~map_data[[A]], opacity = 1.0)
             })
+    output$progressBox1 <- renderValueBox({
+      
+      fac1 <- filter(count, borocd ==input$boro1 & facdomain =="Administration of Government" )
+      valueBox(
+        paste0(fac1$n), "Administration of Government", icon = icon("list"),
+        color = "purple"
+      )
+    })
+    
+    output$progressBox2 <- renderValueBox({
+      
+      fac2 <- filter(count, borocd ==input$boro1 & facdomain =="Core Infrastructure and Transportation" )
+      valueBox(
+        paste0(fac2$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
+        color = "green"
+      )
+    })
+    output$progressBox3 <- renderValueBox({
+      
+      fac3 <- filter(count, borocd ==input$boro1 & facdomain =="Education, Child Welfare, and Youth" )
+      valueBox(
+        paste0(fac3$n), "Education, Child Welfare, and Youth", icon = icon("city"),
+        color = "orange"
+      )
+    })
+    
+    output$progressBox4 <- renderValueBox({
+      fac4 <- filter(count, borocd ==input$boro1 & facdomain =="Health and Human Services" )
+      valueBox(
+        paste0(fac4$n), "Health and Human Services", icon = icon("ambulance"),
+        color = "olive"
+      )
+    })
+    
+    output$progressBox5 <- renderValueBox({
+      fac5 <- filter(count, borocd ==input$boro1 & facdomain =="Libraries and Cultural Programs" )
+      valueBox(
+        paste0(fac5$n), "Libraries and Cultural Programs", icon = icon("archive"),
+        color = "yellow"
+      )
+    })
+    
+    output$progressBox6 <- renderValueBox({  
+      fac6 <- filter(count, borocd ==input$boro1 & facdomain =="Parks, Gardens, and Historical Sites" )
+      valueBox(
+        paste0(fac6$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
+        color = "lime"
+      )
+    })
+    
+    output$progressBox7 <- renderValueBox({
+      fac7 <- filter(count, borocd ==input$boro1 & facdomain =="Public Safety, Emergency Services, and Administration of Justice" )
+      valueBox(
+        paste0(fac7$n), "	Public Safety, Emergency Services, and Administration of Justice", icon = icon("building"),
+        color = "maroon"
+      )
+    })
     
     output$facility_1 <- renderLeaflet({
       
@@ -374,10 +595,10 @@ server <- function(input, output) {
       
     })
     
-    output$header<- renderImage({
-        Leg<-"www/NYC_header.jpg"
-        list(src=Leg)
-    },deleteFile = FALSE)  
+    output$slickr <- renderSlickR({
+      imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
+      slickR(imgs)
+    })
 
     output$tableNYC <- DT::renderDataTable({
       
@@ -389,4 +610,5 @@ server <- function(input, output) {
 
 
 # Run the application
+
 shinyApp(ui = ui, server = server)

@@ -26,18 +26,26 @@ library(miceadds)
 library(tigris)
 library(slickR)
 library(devtools)
+library(sunburstR)
+library(TraMineR)
+library(pipeR)
+library(reshape)
 install_github("nik01010/dashboardthemes")
 library(dashboardthemes)
+library(htmltools)
+library(reshape)
+library(d3r)
 
 
 ##########################
 map_data <- read.csv("map_data.csv")
 map_data_nyc <- map_data
+dfi <- read.csv("all_borough_v2.csv")
 nycounties <- geojsonio::geojson_read("Community Districts.geojson",
-                                      what = "sp")
+                                   what = "sp")
 map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
 pal <- colorNumeric("viridis", NULL)
-
+borough <- c("Manhattan","Queens","Brooklyn","Bronx","Staten Island")
 chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
             "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
             "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
@@ -82,8 +90,6 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% que
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
 
 
-
-
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
                     domain = nyc_boroughs@data$borough)
@@ -95,6 +101,36 @@ centers0_avg <- centers0 %>%
   group_by(region) %>%
   summarise(x=mean(x),y=mean(y))
 
+##### Jianhao ##########
+burdern<-function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = pct_hh_rent_burd, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+sun_1<-dfi[,c(42,43,44,45,198,199)]
+sun_1$def<-rep("facility", length(sun_1$count_public_schools))
+sun_2<-dfi[,c(33,198,199)]
+sun_2$def<-rep("lots",length(sun_2$lots_public_facility_institution))
+
+mydata1<-melt(sun_1,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata2<-melt(sun_2,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata<-rbind(mydata1,mydata2)
+
+dat <- data.frame(
+  level1 = mydata$borough,
+  level2 = mydata$subborough,
+  level3 = mydata$def,
+  level4 = mydata$variable,
+  size = mydata$value,
+  stringsAsFactors = FALSE
+)
+
+tree <- d3_nest(dat, value_cols = "size")
 ################################
 logo_blue_gradient <- shinyDashboardLogoDIY(
   
@@ -380,7 +416,12 @@ ui <- dashboardPage(
                     column(width = 6,
                            box(width=12,solidHeader = FALSE, background= "olive",
                                title="Introduction",
-                               h4("This APP is designed to explore New York City by visualization",size = 10,style = "font-family: 'Arial'," )
+                               h4("Welcome to our Shiny App!"
+                                  ,size = 10,style = "font-family: 'Arial'," ),
+                               h4("Location!",size = 10,style = "font-family: 'Arial'," ),
+                               h4("Location!",size = 10,style = "font-family: 'Arial'," ),
+                               h4("Location! Location is what we care about!
+Before you go to New York, please check our Shiny to truly get to know New York!",size = 10,style = "font-family: 'Arial'," )
                            ) )
                 )
                 )
@@ -410,6 +451,20 @@ ui <- dashboardPage(
                     )
                     
                 )
+            ),
+            tabItem(
+              tabName = "Vis", 
+              fluidRow(
+                box(h4("This sunburst plot indicates the land use condition in New York City. 
+                       The innermost circle is the five main boroughs (Manhattan, Bronx, Staten Island, Queens, Brooklyn).
+                       The second inner circle is the 59 community districts. The third inner circle represents the occupied 
+                       area of each land use type, including parking lots, facilities (hospitals and clinics, 
+                       schools and institutions, libraries, parks). For example, 
+                       when you clic in Greenwich Village/Financial District in Manhattan, you will see that 77.6% of the land area
+                       is occupied as parking lots and 22.4% is facilities. Among the facilities’ land, 49% is public schools’ land, 
+                       28% is parks’ land, 19% is health facilities’ land and 4% is libraries’ land.",size = 10,style = "font-family: 'Arial',")),
+                box(title= "Land use sunburst plot", status = "warning", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
+              )
             ),
             
             
@@ -480,6 +535,21 @@ ui <- dashboardPage(
                 
             ),
             tabItem(
+              tabName = "Difference",
+              fluidRow(
+                box(title = "Controls", status = "warning", solidHeader = TRUE,
+                    selectInput("borough1","Select borough 1:",borough,selected = borough[1]),
+                    br(),
+                    br(),
+                    br(),
+                    selectInput("borough2","Select borough 2:" ,borough,selected = borough[3])
+                ),
+                box(title = "Rent Burden", solidHeader = TRUE,
+                    plotlyOutput("rentburden"))
+              )
+            ),
+
+            tabItem(
                 tabName = "about",
                 fluidRow(
                   column(width = 12,
@@ -523,6 +593,11 @@ server <- function(input, output) {
                                         formatC(map_data[[A]], big.mark = ","))) %>%
             addLegend(pal = pal,title =  input$Variable, values = ~map_data[[A]], opacity = 1.0)
             })
+    
+    output$rentburden <- renderPlotly({
+      
+      burdern(input$borough1,input$borough2)
+    })
     
     output$progressBox1 <- renderValueBox({
       
@@ -685,6 +760,12 @@ server <- function(input, output) {
         DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "300px"),rownames= FALSE
         )})
     
+    output$sunburstPlot <-  renderSund2b({ 
+      
+      sb3 <- sund2b(tree, width="100%")
+      sb3
+      
+    })
     
     }
 

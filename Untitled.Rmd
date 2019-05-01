@@ -1,0 +1,126 @@
+---
+title: "Untitled"
+author: "Jianhao Yan"
+date: "4/30/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(sunburstR)
+library(TraMineR)
+library(pipeR)
+```
+
+
+
+
+
+```{r}
+#prepare data
+facilities <- read_csv("NYC/All_facilities.csv")
+
+
+sun_1<-dfi[,c(42,43,44,45,198,199)]
+sun_1$def<-rep("facility", length(sun_1$count_public_schools))
+sun_2<-dfi[,c(33,198,199)]
+sun_2$def<-rep("lots",length(sun_2$lots_public_facility_institution))
+library(reshape)
+mydata1<-melt(sun_1,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata2<-melt(sun_2,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata<-rbind(mydata1,mydata2)
+
+```
+
+
+```{r}
+library(htmltools)
+#> Warning: package 'htmltools' was built under R version 3.4.4
+library(d3r)
+
+dat <- data.frame(
+  level1 = mydata$borough,
+  level2 = mydata$subborough,
+  level3 = mydata$def,
+  level4 = mydata$variable,
+  size = mydata$value,
+  stringsAsFactors = FALSE
+)
+
+
+knitr::kable(dat)
+
+
+```
+
+
+```{r}
+library(d3r)
+tree <- d3_nest(dat, value_cols = "size")
+#
+```
+
+
+
+
+
+```{r}
+sb3 <- sund2b(tree, width="100%")
+
+div(
+  style="display: flex; align-items:center;",
+  sb3
+)
+```
+
+
+
+
+
+
+
+##
+```{r}
+
+
+rate<-function(a,b){
+  p<-X2013_2014_High_School_School_Quality_Reports[,c("School Name",a)]%>%
+    filter(`School Name` == b)
+  as.numeric(p[1,2])*100
+}
+
+
+rate_1<-rate("Percent Asian", "Henry Street School for International Studies")
+
+gauge(rate_1, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+

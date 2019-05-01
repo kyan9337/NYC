@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly,lubridate)
+pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly,lubridate,data.table)
 
 ```
 
@@ -110,3 +110,32 @@ leaflet(data = shooting) %>% addTiles() %>%
   
 ```
 
+Arrest
+```{r}
+arrest<-fread("NYPD_Arrests_Data.csv")
+arrest$ARREST_DATE<-as.Date(arrest$ARREST_DATE,format="%m/%d/%Y")
+arrest$YEAR<-lubridate::year(arrest$ARREST_DATE)
+arrest<-arrest[,-c(1,2,3,5,7,9,10,11,15,16)]
+# pop_up<-paste("Offense Description: ", arrest$OFNS_DESC,"\n",
+#                "Perpetrator’s sex: ",arrest$PERP_SEX,"\n",
+#                "Perpetrator’s age: ",arrest$AGE_GROUP,"\n",
+#                "Perpetrator’s race: ",arrest$PERP_RACE)
+
+set.seed(2019)
+arrest<-na.omit(arrest)
+arrest%>%filter(YEAR==2017) %>% 
+  sample_n(12000,replace = FALSE)->arrest_data
+
+leaflet(data = arrest_data) %>% addTiles() %>%
+   addProviderTiles("CartoDB.Positron") %>%
+  addMarkers(lat =~Latitude,lng=~Longitude,
+             popup = cat(paste0(
+               "Offense Description: ", ~OFNS_DESC,"\n",
+               "Perpetrator’s sex: ",~PERP_SEX,"\n",
+               "Perpetrator’s age: ",~AGE_GROUP,"\n",
+               "Perpetrator’s race:
+               ",~PERP_RACE)),
+             clusterOptions =
+               markerClusterOptions()) %>%
+  addCircleMarkers(radius = 1.5, color="red", stroke = FALSE, fillOpacity = 0.5)
+```

@@ -26,18 +26,26 @@ library(miceadds)
 library(tigris)
 library(slickR)
 library(devtools)
+library(sunburstR)
+library(TraMineR)
+library(pipeR)
+library(reshape)
 install_github("nik01010/dashboardthemes")
 library(dashboardthemes)
+library(htmltools)
+library(reshape)
+library(d3r)
 
 
 ##########################
 map_data <- read.csv("map_data.csv")
 map_data_nyc <- map_data
+dfi <- read.csv("all_borough_v2.csv")
 nycounties <- geojsonio::geojson_read("Community Districts.geojson",
-                                      what = "sp")
+                                   what = "sp")
 map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
 pal <- colorNumeric("viridis", NULL)
-
+borough <- c("Manhattan","Queens","Brooklyn","Bronx","Staten Island")
 chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
             "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
             "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
@@ -62,7 +70,7 @@ cmd <- c(  "Williamsburg, Greenpoint"="301"  ,          "Woodhaven, Richmond Hil
            "Manhattanville, Hamilton Heights"="109" ,   "Ridgewood, Glendale, Maspeth"="405"       , "Lower East Side, Chinatown"="103"         ,
            "Morrisania, Crotona Park East"="203"   ,    "Crown Heights South, Wingate"="309"        ,"Bay Ridge, Dyker Heights"="310"           ,
            "Throgs Nk., Co-op City, Pelham Bay"="210" , "Forest Hills, Rego Park"="406")
-All_facility <- read.csv("All_facilities.csv")
+All_facility <- read.csv("All_facilities.csv") %>% filter(facdomain != "	Public Safety, Emergency Services, and Administration of Justice")
 factype <- as.character(unique(All_facility$facdomain))
 factype <- factype[-8]
 r <- GET("http://data.beta.nyc//dataset/472dda10-79b3-4bfb-9c75-e7bd5332ec0b/resource/d826bbc6-a376-4642-8d8b-3a700d701557/download/88472a1f6fd94fef97b8c06335db60f7nyccommunitydistricts.geojson")
@@ -81,9 +89,6 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bro
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
 
-count <- All_facility%>%
-  group_by(borocd,facdomain)%>%
-  summarise(n = n())
 
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
@@ -96,6 +101,36 @@ centers0_avg <- centers0 %>%
   group_by(region) %>%
   summarise(x=mean(x),y=mean(y))
 
+##### Jianhao ##########
+burdern<-function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = pct_hh_rent_burd, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+sun_1<-dfi[,c(42,43,44,45,198,199)]
+sun_1$def<-rep("facility", length(sun_1$count_public_schools))
+sun_2<-dfi[,c(33,198,199)]
+sun_2$def<-rep("lots",length(sun_2$lots_public_facility_institution))
+
+mydata1<-melt(sun_1,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata2<-melt(sun_2,id.vars=c("borough","subborough","def"),
+              variable.name="Year",value.name="Sale")
+mydata<-rbind(mydata1,mydata2)
+
+dat <- data.frame(
+  level1 = mydata$borough,
+  level2 = mydata$subborough,
+  level3 = mydata$def,
+  level4 = mydata$variable,
+  size = mydata$value,
+  stringsAsFactors = FALSE
+)
+
+tree <- d3_nest(dat, value_cols = "size")
 ################################
 logo_blue_gradient <- shinyDashboardLogoDIY(
   
@@ -381,7 +416,12 @@ ui <- dashboardPage(
                     column(width = 6,
                            box(width=12,solidHeader = FALSE, background= "olive",
                                title="Introduction",
-                               h4("This APP is designed to explore New York City by visualization",size = 10,style = "font-family: 'Arial'," )
+                               h4("Welcome to our Shiny App!"
+                                  ,size = 10,style = "font-family: 'Arial'," ),
+                               h4("Location!",size = 10,style = "font-family: 'Arial'," ),
+                               h4("Location!",size = 10,style = "font-family: 'Arial'," ),
+                               h4("Location! Location is what we care about!
+Before you go to New York, please check our Shiny to truly get to know New York!",size = 10,style = "font-family: 'Arial'," )
                            ) )
                 )
                 )
@@ -412,40 +452,73 @@ ui <- dashboardPage(
                     
                 )
             ),
+            tabItem(
+              tabName = "Vis", 
+              fluidRow(
+                box(h4("This sunburst plot indicates the land use condition in New York City. 
+                       The innermost circle is the five main boroughs (Manhattan, Bronx, Staten Island, Queens, Brooklyn).
+                       The second inner circle is the 59 community districts. The third inner circle represents the occupied 
+                       area of each land use type, including parking lots, facilities (hospitals and clinics, 
+                       schools and institutions, libraries, parks). For example, 
+                       when you clic in Greenwich Village/Financial District in Manhattan, you will see that 77.6% of the land area
+                       is occupied as parking lots and 22.4% is facilities. Among the facilities’ land, 49% is public schools’ land, 
+                       28% is parks’ land, 19% is health facilities’ land and 4% is libraries’ land.",size = 10,style = "font-family: 'Arial',")),
+                box(title= "Land use sunburst plot", status = "warning", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
+              )
+            ),
             
             
             tabItem(
                 tabName = "facility",
-                fluidRow(
-                    valueBoxOutput("progressBox1"),
-                    valueBoxOutput("progressBox2"),
-                    valueBoxOutput("progressBox3"),
-                    valueBoxOutput("progressBox4"),
-                    valueBoxOutput("progressBox5"),
-                    valueBoxOutput("progressBox6"),
-                    valueBoxOutput("progressBox7"),
-                    column(width = 12,
-                           box(  status = "primary", solidHeader = FALSE,
-                                leafletOutput("facility_1",height = 500))
-                           
-                           ,box(status = "primary", solidHeader = FALSE,
-                                leafletOutput("facility_2",height = 500)
+                 fluidRow(
+                 
+                    
+                    box( title = "Controls", status = "warning", solidHeader = TRUE,
+                         selectInput("boro1","Select community to view on left side panel:",cmd,selected = cmd[1]),
+                         br(),
+                         br(),
+                         br(),
+                         selectInput("boro2","Select community to view right side panel:" ,cmd,selected = cmd[3])),
+                    box(title = "Controls",status = "warning", solidHeader = TRUE,
+                         checkboxGroupInput("boro11","Select facility type to view:",choices = factype ,selected = factype)
+                        )
+                    ),
+              
+                         
+                    
+                 fluidRow(
+                  column(width = 12,
+                           box(  status = "primary", solidHeader = FALSE,background = "teal",
                                 
-                           ),
-                           column(width = 12,
-                                  
-                                  box( 
-                                      title = "Controls", status = "warning", solidHeader = TRUE,
-                                      selectInput("boro1","Select community to view on left side panel:",cmd,selected = cmd[1]),
-                                      selectInput("boro2","Select community to view right side panel:"
-                                                  ,cmd,selected = cmd[3])
-                                  ),
-                                  box( 
-                                    title = "Controls", status = "warning", solidHeader = TRUE,
-                                    checkboxGroupInput("boro11","Select facility type to view:",choices = factype ,selected = factype)
-                                  
-                                  )
+                                leafletOutput("facility_1",height = 500),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                               
+                                valueBoxOutput("progressBox1"),
+                                valueBoxOutput("progressBox2"),
+                                valueBoxOutput("progressBox3"),
+                                valueBoxOutput("progressBox4"),
+                                valueBoxOutput("progressBox5"),
+                                valueBoxOutput("progressBox6"))     
+                                      
+                           
+                           ,box(status = "primary", solidHeader = FALSE,background = "olive",
+                                leafletOutput("facility_2",height = 500),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                
+                                valueBoxOutput("progressBox11"),
+                                valueBoxOutput("progressBox22"),
+                                valueBoxOutput("progressBox33"),
+                                valueBoxOutput("progressBox44"),
+                                valueBoxOutput("progressBox55"),
+                                valueBoxOutput("progressBox66")   
                            )
+                    
                            
                            
                     )
@@ -461,6 +534,21 @@ ui <- dashboardPage(
                     )
                 
             ),
+            tabItem(
+              tabName = "Difference",
+              fluidRow(
+                box(title = "Controls", status = "warning", solidHeader = TRUE,
+                    selectInput("borough1","Select borough 1:",borough,selected = borough[1]),
+                    br(),
+                    br(),
+                    br(),
+                    selectInput("borough2","Select borough 2:" ,borough,selected = borough[3])
+                ),
+                box(title = "Rent Burden", solidHeader = TRUE,
+                    plotlyOutput("rentburden"))
+              )
+            ),
+
             tabItem(
                 tabName = "about",
                 fluidRow(
@@ -505,10 +593,17 @@ server <- function(input, output) {
                                         formatC(map_data[[A]], big.mark = ","))) %>%
             addLegend(pal = pal,title =  input$Variable, values = ~map_data[[A]], opacity = 1.0)
             })
+    
+    output$rentburden <- renderPlotly({
+      
+      burdern(input$borough1,input$borough2)
+    })
+    
     output$progressBox1 <- renderValueBox({
       
       fac1 <- filter(count, borocd ==input$boro1 & facdomain =="Administration of Government" )
       valueBox(
+       
         paste0(fac1$n), "Administration of Government", icon = icon("list"),
         color = "purple"
       )
@@ -518,6 +613,7 @@ server <- function(input, output) {
       
       fac2 <- filter(count, borocd ==input$boro1 & facdomain =="Core Infrastructure and Transportation" )
       valueBox(
+       
         paste0(fac2$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
         color = "green"
       )
@@ -526,6 +622,7 @@ server <- function(input, output) {
       
       fac3 <- filter(count, borocd ==input$boro1 & facdomain =="Education, Child Welfare, and Youth" )
       valueBox(
+        
         paste0(fac3$n), "Education, Child Welfare, and Youth", icon = icon("city"),
         color = "orange"
       )
@@ -533,7 +630,9 @@ server <- function(input, output) {
     
     output$progressBox4 <- renderValueBox({
       fac4 <- filter(count, borocd ==input$boro1 & facdomain =="Health and Human Services" )
+      
       valueBox(
+       
         paste0(fac4$n), "Health and Human Services", icon = icon("ambulance"),
         color = "olive"
       )
@@ -541,7 +640,9 @@ server <- function(input, output) {
     
     output$progressBox5 <- renderValueBox({
       fac5 <- filter(count, borocd ==input$boro1 & facdomain =="Libraries and Cultural Programs" )
-      valueBox(
+      
+     valueBox(
+       
         paste0(fac5$n), "Libraries and Cultural Programs", icon = icon("archive"),
         color = "yellow"
       )
@@ -550,15 +651,69 @@ server <- function(input, output) {
     output$progressBox6 <- renderValueBox({  
       fac6 <- filter(count, borocd ==input$boro1 & facdomain =="Parks, Gardens, and Historical Sites" )
       valueBox(
+       
+        
         paste0(fac6$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
-        color = "lime"
+        color = "maroon"
       )
     })
     
-    output$progressBox7 <- renderValueBox({
-      fac7 <- filter(count, borocd ==input$boro1 & facdomain =="Public Safety, Emergency Services, and Administration of Justice" )
+    
+    output$progressBox11 <- renderValueBox({
+      
+      fac11 <- filter(count, borocd ==input$boro2 & facdomain =="Administration of Government" )
       valueBox(
-        paste0(fac7$n), "	Public Safety, Emergency Services, and Administration of Justice", icon = icon("building"),
+        
+        paste0(fac11$n), "Administration of Government", icon = icon("list"),
+        color = "purple"
+      )
+    })
+    
+    output$progressBox22 <- renderValueBox({
+      
+      fac22 <- filter(count, borocd ==input$boro2 & facdomain =="Core Infrastructure and Transportation" )
+      valueBox(
+        
+        paste0(fac22$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
+        color = "green"
+      )
+    })
+    output$progressBox33 <- renderValueBox({
+      
+      fac33 <- filter(count, borocd ==input$boro2 & facdomain =="Education, Child Welfare, and Youth" )
+      valueBox(
+        
+        paste0(fac33$n), "Education, Child Welfare, and Youth", icon = icon("city"),
+        color = "orange"
+      )
+    })
+    
+    output$progressBox44 <- renderValueBox({
+      fac44 <- filter(count, borocd ==input$boro2 & facdomain =="Health and Human Services" )
+      
+      valueBox(
+        
+        paste0(fac44$n), "Health and Human Services", icon = icon("ambulance"),
+        color = "aqua"
+      )
+    })
+    
+    output$progressBox55 <- renderValueBox({
+      fac55 <- filter(count, borocd ==input$boro2 & facdomain =="Libraries and Cultural Programs" )
+      
+      valueBox(
+        
+        paste0(fac55$n), "Libraries and Cultural Programs", icon = icon("archive"),
+        color = "yellow"
+      )
+    })
+    
+    output$progressBox66 <- renderValueBox({  
+      fac66 <- filter(count, borocd ==input$boro2 & facdomain =="Parks, Gardens, and Historical Sites" )
+      valueBox(
+        
+        
+        paste0(fac66$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
         color = "maroon"
       )
     })
@@ -605,6 +760,12 @@ server <- function(input, output) {
         DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "300px"),rownames= FALSE
         )})
     
+    output$sunburstPlot <-  renderSund2b({ 
+      
+      sb3 <- sund2b(tree, width="100%")
+      sb3
+      
+    })
     
     }
 

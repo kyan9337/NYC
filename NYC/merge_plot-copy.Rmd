@@ -17,11 +17,7 @@ library(plotly)
 
 
 
-# Join table & write csv
-```{r }
-dfi <- left_join(ab, cd_t_boro, by=c("borocd"="code"))
-write.csv(dfi, "all_borough_v2.csv")
-```
+
 
 
 #Different indicators

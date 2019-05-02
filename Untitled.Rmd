@@ -21,8 +21,8 @@ library(pipeR)
 
 ```{r}
 #prepare data
-facilities <- read_csv("NYC/All_facilities.csv")
-
+facilities <- read.csv("NYC/All_facilities.csv")
+dfi <- read.csv("NYC/all_borough_v2.csv")
 
 sun_1<-dfi[,c(42,43,44,45,198,199)]
 sun_1$def<-rep("facility", length(sun_1$count_public_schools))
@@ -40,7 +40,7 @@ mydata<-rbind(mydata1,mydata2)
 
 ```{r}
 library(htmltools)
-#> Warning: package 'htmltools' was built under R version 3.4.4
+
 library(d3r)
 
 dat <- data.frame(
@@ -62,7 +62,7 @@ knitr::kable(dat)
 ```{r}
 library(d3r)
 tree <- d3_nest(dat, value_cols = "size")
-#
+library(tidyverse)
 ```
 
 

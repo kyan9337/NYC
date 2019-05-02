@@ -181,6 +181,9 @@ dat <- data.frame(
 )
 
 tree <- d3_nest(dat, value_cols = "size")
+count <- All_facility%>%
+  group_by(borocd,facdomain)%>%
+  summarise(n = n())
 ################################
 logo_blue_gradient <- shinyDashboardLogoDIY(
   

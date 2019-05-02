@@ -184,6 +184,7 @@ tree <- d3_nest(dat, value_cols = "size")
 count <- All_facility%>%
   group_by(borocd,facdomain)%>%
   summarise(n = n())
+colnames(count) <- c("borocd","community_name", "count")
 ################################
 logo_blue_gradient <- shinyDashboardLogoDIY(
   
@@ -540,30 +541,15 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                                 leafletOutput("facility_1",height = 500),
                                 br(),
                                 br(),
-                                br(),
-                                br(),
-                               
-                                valueBoxOutput("progressBox1"),
-                                valueBoxOutput("progressBox2"),
-                                valueBoxOutput("progressBox3"),
-                                valueBoxOutput("progressBox4"),
-                                valueBoxOutput("progressBox5"),
-                                valueBoxOutput("progressBox6"))     
+                                tableOutput("table1")
+                                )     
                                       
                            
                            ,box(
                                 leafletOutput("facility_2",height = 500),
                                 br(),
                                 br(),
-                                br(),
-                                br(),
-                                
-                                valueBoxOutput("progressBox11"),
-                                valueBoxOutput("progressBox22"),
-                                valueBoxOutput("progressBox33"),
-                                valueBoxOutput("progressBox44"),
-                                valueBoxOutput("progressBox55"),
-                                valueBoxOutput("progressBox66")   
+                                tableOutput("table2")
                            )
                     
                 )
@@ -656,103 +642,18 @@ server <- function(input, output) {
       burdern(input$borough1,input$borough2)
     })
     
-    output$progressBox1 <- renderValueBox({
-      
-      fac1 <- filter(count, borocd ==input$boro1 & facdomain =="Administration of Government" )
-      valueBox(
-       
-        paste0(fac1$n), "Administration of Government", icon = icon("list"),
-        color = "purple"
-      )
+    output$table1 <- renderTable({
+      count %>%
+        filter(borocd ==input$boro1) %>%
+        select(community_name, count) %>%
+        arrange(desc(count))
     })
     
-    output$progressBox2 <- renderValueBox({
-      
-      fac2 <- filter(count, borocd ==input$boro1 & facdomain =="Core Infrastructure and Transportation" )
-      valueBox(
-       
-        paste0(fac2$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
-        color = "green"
-      )
-    })
-    output$progressBox3 <- renderValueBox({
-      
-      fac3 <- filter(count, borocd ==input$boro1 & facdomain =="Education, Child Welfare, and Youth" )
-      valueBox(
-        
-        paste0(fac3$n), "Education, Child Welfare, and Youth", icon = icon("city"),
-        color = "orange"
-      )
-    })
-    
-    output$progressBox4 <- renderValueBox({
-      fac4 <- filter(count, borocd ==input$boro1 & facdomain =="Health and Human Services" )
-      
-      valueBox(
-       
-        paste0(fac4$n), "Health and Human Services", icon = icon("ambulance"),
-        color = "olive"
-      )
-    })
-    
-    output$progressBox5 <- renderValueBox({
-      fac5 <- filter(count, borocd ==input$boro1 & facdomain =="Libraries and Cultural Programs" )
-      
-     valueBox(
-       
-        paste0(fac5$n), "Libraries and Cultural Programs", icon = icon("archive"),
-        color = "yellow"
-      )
-    })
-    
-    output$progressBox6 <- renderValueBox({  
-      fac6 <- filter(count, borocd ==input$boro1 & facdomain =="Parks, Gardens, and Historical Sites" )
-      valueBox(
-       
-        
-        paste0(fac6$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
-        color = "maroon"
-      )
-    })
-    
-    
-    output$progressBox11 <- renderValueBox({
-      
-      fac11 <- filter(count, borocd ==input$boro2 & facdomain =="Administration of Government" )
-      valueBox(
-        
-        paste0(fac11$n), "Administration of Government", icon = icon("list"),
-        color = "purple"
-      )
-    })
-    
-    output$progressBox22 <- renderValueBox({
-      
-      fac22 <- filter(count, borocd ==input$boro2 & facdomain =="Core Infrastructure and Transportation" )
-      valueBox(
-        
-        paste0(fac22$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
-        color = "green"
-      )
-    })
-    output$progressBox33 <- renderValueBox({
-      
-      fac33 <- filter(count, borocd ==input$boro2 & facdomain =="Education, Child Welfare, and Youth" )
-      valueBox(
-        
-        paste0(fac33$n), "Education, Child Welfare, and Youth", icon = icon("city"),
-        color = "orange"
-      )
-    })
-    
-    output$progressBox44 <- renderValueBox({
-      fac44 <- filter(count, borocd ==input$boro2 & facdomain =="Health and Human Services" )
-      
-      valueBox(
-        
-        paste0(fac44$n), "Health and Human Services", icon = icon("ambulance"),
-        color = "aqua"
-      )
+    output$table2 <- renderTable({
+      count %>%
+        filter(borocd ==input$boro2) %>%
+        select(community_name, count) %>%
+        arrange(desc(count))
     })
     
     output$progressBox55 <- renderValueBox({
@@ -782,7 +683,7 @@ server <- function(input, output) {
       cen1 <- filter(centers0_avg,region == input$boro1)
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 
-        setView(cen1$x,cen1$y , zoom = 14) %>% 
+        setView(cen1$x,cen1$y , zoom = 12.5) %>% 
         addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
                                                                                                                                                               bringToFront = F)) %>%
         addProviderTiles("CartoDB.Positron") %>%
@@ -798,7 +699,7 @@ server <- function(input, output) {
       cen2 <- filter(centers0_avg,region == input$boro2)
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 
-        setView(cen2$x,cen2$y , zoom = 14) %>% 
+        setView(cen2$x,cen2$y , zoom = 12.5) %>% 
         addPolygons(stroke=T,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
                                                                                                                                                               bringToFront = FALSE)) %>%
         addProviderTiles("CartoDB.Positron") %>%

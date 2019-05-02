@@ -226,9 +226,9 @@ theme_blue_gradient <- shinyDashboardThemeDIY(
   ### sidebar
   ,sidebarBackColor = cssGradientThreeColors(
     direction = "down"
-    ,colorStart = "rgb(20,97,117)"
-    ,colorMiddle = "rgb(56,161,187)"
-    ,colorEnd = "rgb(3,22,56)"
+    ,colorStart = "rgb(173,216,230)"
+    ,colorMiddle = "rgb(135,206,250)"
+    ,colorEnd = "rgb(56,161,187)"
     ,colorStartPos = 0
     ,colorMiddlePos = 50
     ,colorEndPos = 100
@@ -248,7 +248,7 @@ theme_blue_gradient <- shinyDashboardThemeDIY(
   ,sidebarSearchIconColor = "rgb(153,153,153)"
   ,sidebarSearchBorderColor = "rgb(55,72,80)"
   
-  ,sidebarTabTextColor = "rgb(255,255,255)"
+  ,sidebarTabTextColor = "rgb(0,0,0)"
   ,sidebarTabTextSize = 13
   ,sidebarTabBorderStyle = "none none solid none"
   ,sidebarTabBorderColor = "rgb(35,106,135)"

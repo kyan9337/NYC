@@ -114,20 +114,22 @@ burdern<-function(a,b){
   q<-dfi%>%
     filter(borough == a | borough == b)%>%
     ggplot(aes(x = borough, y = pct_hh_rent_burd, fill = subborough))+
-    geom_bar(stat="identity", position=position_dodge())
+    geom_bar(stat="identity", position=position_dodge())+
+    theme(legend.position = "none")
   ggplotly(q)
 }
 
 commute<- function(a,b){
-  q<-dfi%>%
+  w<-dfi%>%
     filter(borough == a | borough == b)%>%
     ggplot(aes(x = borough, y = mean_commute, fill = subborough))+
-    geom_bar(stat="identity", position=position_dodge())
-  ggplotly(q)
+    geom_bar(stat="identity", position=position_dodge())+
+    theme(legend.position = "none")
+  ggplotly(w)
 }
 
 crime<-function(a,b){
-  q<-dfi%>%
+  e<-dfi%>%
     group_by(subborough)%>%
     filter(borough == a | borough == b)%>%
     plot_ly(labels = ~subborough, values = ~crime_per_1000)%>%
@@ -135,12 +137,13 @@ crime<-function(a,b){
     layout(title = "Crime rate",  showlegend = F,
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-  q
+   
+  e
   
 }
 
 education<-function(a,b){
-  q<-dfi%>%
+  r<-dfi%>%
     group_by(subborough)%>%
     filter(borough == a | borough == b)%>%
     plot_ly(labels = ~subborough, values = ~pct_bach_deg)%>%
@@ -148,15 +151,17 @@ education<-function(a,b){
     layout(title = "Crime rate",  showlegend = F,
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-  q
+    
+  r
 }
 
 poverty<-function(a,b){
-  q<-dfi%>%
+  t<-dfi%>%
     filter(borough == a | borough == b)%>%
     ggplot(aes(x = borough, y = poverty_rate, fill = subborough))+
-    geom_bar(stat="identity", position=position_dodge())
-  ggplotly(q)
+    geom_bar(stat="identity", position=position_dodge())+
+    theme(legend.position = "none")
+  ggplotly(t)
 }
 
 
@@ -239,7 +244,7 @@ ui <- dashboardPage(
                               
                      ),
                      menuItem("flood risk",
-                              tabName = "wifi",
+                              tabName = "flood",
                               icon = icon("bar-chart-o")
                               
                      ),
@@ -442,30 +447,61 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             tabItem(
               tabName = "Difference",
               fluidRow(
-                box(title = "Controls", status = "warning", solidHeader = TRUE,
+                column(width = 2,
+                box(title = "Controls", status = "warning", solidHeader = TRUE,width = 12,
                     selectInput("borough1","Select borough 1:",borough,selected = borough[1]),
-                    br(),
-                    br(),
-                    br(),
                     selectInput("borough2","Select borough 2:" ,borough,selected = borough[3])
-                ),
+                )),
+                column(width = 10,
                 box(title = "Rent Burden", solidHeader = TRUE,
-                    plotlyOutput("rentburden"))
+                    plotlyOutput("rentburden")),
+                box(title = "Crime Rate", solidHeader = TRUE,
+                    plotlyOutput("crimerate")),
+                box(title = "Commute Time", solidHeader = TRUE,
+                    plotlyOutput("commute")),
+                box(title = "Education", solidHeader = TRUE,
+                    plotlyOutput("education")),
+                box(title = "Poverty", solidHeader = TRUE,
+                    plotlyOutput("poverty"))
+              )
               )
             ),
             
             tabItem(
               tabName = "safety",
               fluidRow(
-                column(width = 6,
-                       box(title = "Shooting points", solidHeader = TRUE,
+                column(width = 12,
+                       box(width=12,title = "Shooting points", solidHeader = TRUE,
                            leafletOutput("shooting_map",height = 500))),
-                column(width = 6,
-                       box(title="Arresting points", solidHeader = TRUE,
+                column(width = 12,
+                       box(width = 12,title="Arresting points", solidHeader = TRUE,
                            leafletOutput("arrest_map",height = 500)))
               )
             ),
-
+            
+            # tabItem(
+            #   tabName = "flood",
+            #   fluidRow(
+            #     column(width = 2,
+            #            box(title = "Controls", status = "warning", solidHeader = TRUE,width = 12,
+            #                selectInput("borough111","Select borough 1:",borough,selected = borough[1]),
+            #                selectInput("borough222","Select borough 2:" ,borough,selected = borough[3])
+            #            )),
+            #     column(width = 10,
+            #            box(title = "Number of residential housing units", solidHeader = TRUE,
+            #                plotlyOutput("residential")),
+            #            box(title = "Number of buildings", solidHeader = TRUE,
+            #                plotlyOutput("building")),
+            #            box(title = "Lot area", solidHeader = TRUE,
+            #                plotlyOutput("lot")),
+            #            box(title = "Open space", solidHeader = TRUE,
+            #                plotlyOutput("open")),
+            #            box(title = "Poverty", solidHeader = TRUE,
+            #                plotlyOutput("poverty"))
+            #     )
+            #   )
+            # ),
+            # 
             tabItem(
                 tabName = "about",
                 fluidRow(
@@ -625,7 +661,70 @@ server <- function(input, output) {
       
     })
     
-    }
+    output$commute <- renderPlotly({
+
+      commute(input$borough1,input$borough2)
+    })
+
+    output$education <- renderPlotly({
+
+      education(input$borough1,input$borough2)
+    })
+
+    output$poverty <- renderPlotly({
+
+      poverty(input$borough1,input$borough2)
+    })
+
+    output$crimerate <- renderPlotly({
+
+      crime(input$borough1,input$borough2)
+    })
+    # 
+    # output$lot <- renderPlotly({
+    #   
+    #   QSI_area <- dfi%>%
+    #     group_by(borough)%>%
+    #     filter(borough == input$borough111| borough == input$borough222)%>%
+    #     ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+    #     geom_bar(stat="identity", position=position_dodge()) +
+    #     ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
+    #   ggplotly(QSI_area)
+    # })
+    # 
+    # output$building <- renderPlotly({
+    #   
+    #   QSI_bldg <- dfi%>%
+    #     group_by(borough)%>%
+    #     filter(borough == input$borough111| borough == input$borough222)%>%
+    #     ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+    #     geom_bar(stat="identity", position=position_dodge())+
+    #     ggtitle("Buildings are in the 1% Annual Chance floodplain")
+    #   ggplotly(QSI_bldg)
+    # })
+    # 
+    # output$residential <- renderPlotly({
+    #   
+    #   BM_units <- dfi%>%
+    #     group_by(borough)%>%
+    #     filter(borough == input$borough111| borough == input$borough222)%>%
+    #     ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+    #     geom_bar(stat="identity", position=position_dodge()) +
+    #     ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
+    #   ggplotly(BM_units)
+    # })
+    # 
+    # output$open <- renderPlotly({
+    #   
+    #   BM_open <- dfi%>%
+    #     group_by(borough)%>%
+    #     filter(borough == input$borough111| borough == input$borough222)%>%
+    #     ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+    #     geom_bar(stat="identity", position=position_dodge()) +
+    #     ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
+    #   ggplotly(BM_open)
+    # })
+ }
 
 
 # Run the application

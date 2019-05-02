@@ -595,7 +595,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             ),
             
             tabItem(
-              tabName = "Safety",
+              tabName = "safety",
               fluidRow(
                 column(width = 6,
                        box(title = "Shooting points", solidHeader = TRUE,

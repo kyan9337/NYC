@@ -478,30 +478,28 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                            leafletOutput("arrest_map",height = 500)))
               )
             ),
+
+            tabItem(
+              tabName = "flood",
+              fluidRow(
+                column(width = 2,
+                       box(title = "Controls",status = "warning",solidHeader = TRUE, width = 12,
+                           selectInput("borough111","Select borough 1:",borough,selected = borough[1]),
+                           selectInput("borough222","Select borough 2:" ,borough,selected = borough[3])))
+                ,
+                column(width = 10,
+                       box(title = "Lot Area",solidHeader = TRUE,
+                           plotlyOutput("lot")),
+                       box(title = "Number of buildings",solidHeader = TRUE,
+                           plotlyOutput("building")),
+                       box(title = "Number of residential housing units",solidHeader = TRUE,
+                           plotlyOutput("residential")),
+                       box(title = "Open Space",solidHeader = TRUE,
+                           plotlyOutput("open"))
+                       )
+              )
+            ),
             
-            # tabItem(
-            #   tabName = "flood",
-            #   fluidRow(
-            #     column(width = 2,
-            #            box(title = "Controls", status = "warning", solidHeader = TRUE,width = 12,
-            #                selectInput("borough111","Select borough 1:",borough,selected = borough[1]),
-            #                selectInput("borough222","Select borough 2:" ,borough,selected = borough[3])
-            #            )),
-            #     column(width = 10,
-            #            box(title = "Number of residential housing units", solidHeader = TRUE,
-            #                plotlyOutput("residential")),
-            #            box(title = "Number of buildings", solidHeader = TRUE,
-            #                plotlyOutput("building")),
-            #            box(title = "Lot area", solidHeader = TRUE,
-            #                plotlyOutput("lot")),
-            #            box(title = "Open space", solidHeader = TRUE,
-            #                plotlyOutput("open")),
-            #            box(title = "Poverty", solidHeader = TRUE,
-            #                plotlyOutput("poverty"))
-            #     )
-            #   )
-            # ),
-            # 
             tabItem(
                 tabName = "about",
                 fluidRow(
@@ -680,50 +678,54 @@ server <- function(input, output) {
 
       crime(input$borough1,input$borough2)
     })
-    # 
-    # output$lot <- renderPlotly({
-    #   
-    #   QSI_area <- dfi%>%
-    #     group_by(borough)%>%
-    #     filter(borough == input$borough111| borough == input$borough222)%>%
-    #     ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
-    #     geom_bar(stat="identity", position=position_dodge()) +
-    #     ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")
-    #   ggplotly(QSI_area)
-    # })
-    # 
-    # output$building <- renderPlotly({
-    #   
-    #   QSI_bldg <- dfi%>%
-    #     group_by(borough)%>%
-    #     filter(borough == input$borough111| borough == input$borough222)%>%
-    #     ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
-    #     geom_bar(stat="identity", position=position_dodge())+
-    #     ggtitle("Buildings are in the 1% Annual Chance floodplain")
-    #   ggplotly(QSI_bldg)
-    # })
-    # 
-    # output$residential <- renderPlotly({
-    #   
-    #   BM_units <- dfi%>%
-    #     group_by(borough)%>%
-    #     filter(borough == input$borough111| borough == input$borough222)%>%
-    #     ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
-    #     geom_bar(stat="identity", position=position_dodge()) +
-    #     ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")
-    #   ggplotly(BM_units)
-    # })
-    # 
-    # output$open <- renderPlotly({
-    #   
-    #   BM_open <- dfi%>%
-    #     group_by(borough)%>%
-    #     filter(borough == input$borough111| borough == input$borough222)%>%
-    #     ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
-    #     geom_bar(stat="identity", position=position_dodge()) +
-    #     ggtitle("Total Open Space are in the 1% Annual Chance floodplain")
-    #   ggplotly(BM_open)
-    # })
+
+    output$lot <- renderPlotly({
+
+      QSI_area <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(QSI_area)
+    })
+
+    output$building <- renderPlotly({
+
+      QSI_bldg <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(QSI_bldg)
+    })
+
+    output$residential <- renderPlotly({
+
+      BM_units <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(BM_units)
+    })
+
+    output$open <- renderPlotly({
+
+      BM_open <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(BM_open)
+    })
  }
 
 

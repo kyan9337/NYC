@@ -521,24 +521,18 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             tabItem(
                 tabName = "facility",
                  fluidRow(
-                 
-                    
-                    box( title = "Controls", status = "warning", solidHeader = TRUE,
-                         selectInput("boro1","Select community to view on left side panel:",cmd,selected = cmd[1]),
-                         br(),
-                         br(),
-                         br(),
-                         selectInput("boro2","Select community to view right side panel:" ,cmd,selected = cmd[3])),
-                    box(title = "Controls",status = "warning", solidHeader = TRUE,
-                         checkboxGroupInput("boro11","Select facility type to view:",choices = factype ,selected = factype)
-                        )
-                    ),
-              
-                         
-                    
-                 fluidRow(
-                  column(width = 12,
-                           box(  status = "primary", solidHeader = FALSE,background = "teal",
+                   column(width = 3,
+                          box( title = "Left Map Control", width = NULL, status = "primary",
+                               selectInput("boro1","Select community to view on left side panel:",cmd,selected = cmd[1])),
+                          box(title = "Right Map Control", width = NULL, status = "primary",
+                              selectInput("boro2","Select community to view right side panel:" ,cmd,selected = cmd[3])),
+                          box(title = "Controls", width = NULL, status = "primary",
+                              checkboxGroupInput("boro11","Select facility type to view:",choices = factype ,selected = factype)
+                          )
+                          )     
+                    ,
+                  column(width = 9,
+                           box( 
                                 
                                 leafletOutput("facility_1",height = 500),
                                 br(),
@@ -554,7 +548,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                                 valueBoxOutput("progressBox6"))     
                                       
                            
-                           ,box(status = "primary", solidHeader = FALSE,background = "olive",
+                           ,box(
                                 leafletOutput("facility_2",height = 500),
                                 br(),
                                 br(),
@@ -569,10 +563,8 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                                 valueBoxOutput("progressBox66")   
                            )
                     
-                           
-                           
-                    )
                 )
+            )
             ),
             tabItem(
                 tabName = "DT",
@@ -626,7 +618,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                 br(),
                 h4("Contact information"),
                 h4("Instructor: Eric Kolaczyk"),
-                h4("This shiny app developed by Mark Yan, Samuel Luo, Si Chen, Sharry Zhang"),
+                h4("abcd"),
                 h4("Contact us at mssp@bu.edu")
             )
         )

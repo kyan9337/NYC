@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly,lubridate,data.table)
+pacman::p_load(readr,dplyr,leaflet,magrittr,tigris,plotly,lubridate,data.table,ggplot2)
 
 ```
 
@@ -140,3 +140,23 @@ leaflet(data = arrest_data) %>% addTiles() %>%
                markerClusterOptions()) %>%
   addCircleMarkers(radius = 1.5, color="red", stroke = FALSE, fillOpacity = 0.5)
 ```
+
+----------------------------------------------------------------
+Education High School EDA
+```{r,warning=F}
+hs_data<-readxl::read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
+names(hs_data)[36] <-"sat" 
+mean_sat <- mean(hs_data$sat,na.rm = TRUE)
+median_sat <- median(hs_data$sat,na.rm = TRUE)
+
+ggplot(data=hs_data,aes(x=sat))+
+  geom_histogram(fill="blue",alpha=0.5,col="black")+
+  ylab("School Count")+
+  xlab("Average SAT Score")+
+  geom_vline(xintercept = mean_sat,linetype = 2,col="yellow")+
+  geom_vline(xintercept = median_sat,linetype="dotdash",col="green")+
+  geom_text(aes(x = 1200, y = 60, label = "Median=1209", show.legend=F)) + 
+  geom_text(aes(x = 1255, y = 50, label = "Mean=1255", show.legend=F)) 
+  
+```
+

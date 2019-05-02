@@ -101,6 +101,14 @@ centers0_avg <- centers0 %>%
   group_by(region) %>%
   summarise(x=mean(x),y=mean(y))
 
+##### Shannon #####
+#Shooting data 
+shooting<-read.csv("NYPD_Shooting_Incident_Data__Year_To_Date_.csv")
+shooting$OCCUR_DATE<-as.Date(shooting$OCCUR_DATE,format="%m/%d/%Y")
+shooting<-shooting[,c(2,4,7,17,18)]
+#Arrest data
+arrest_data<-read_csv('arrest_data.csv')
+
 ##### Jianhao ##########
 burdern<-function(a,b){
   q<-dfi%>%
@@ -109,6 +117,48 @@ burdern<-function(a,b){
     geom_bar(stat="identity", position=position_dodge())
   ggplotly(q)
 }
+
+commute<- function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = mean_commute, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
+crime<-function(a,b){
+  q<-dfi%>%
+    group_by(subborough)%>%
+    filter(borough == a | borough == b)%>%
+    plot_ly(labels = ~subborough, values = ~crime_per_1000)%>%
+    add_pie(hole = 0.6)%>%
+    layout(title = "Crime rate",  showlegend = F,
+           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  q
+  
+}
+
+education<-function(a,b){
+  q<-dfi%>%
+    group_by(subborough)%>%
+    filter(borough == a | borough == b)%>%
+    plot_ly(labels = ~subborough, values = ~pct_bach_deg)%>%
+    add_pie(hole = 0.6)%>%
+    layout(title = "Crime rate",  showlegend = F,
+           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  q
+}
+
+poverty<-function(a,b){
+  q<-dfi%>%
+    filter(borough == a | borough == b)%>%
+    ggplot(aes(x = borough, y = poverty_rate, fill = subborough))+
+    geom_bar(stat="identity", position=position_dodge())
+  ggplotly(q)
+}
+
 
 sun_1<-dfi[,c(42,43,44,45,198,199)]
 sun_1$def<-rep("facility", length(sun_1$count_public_schools))
@@ -548,6 +598,18 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                     plotlyOutput("rentburden"))
               )
             ),
+            
+            tabItem(
+              tabName = "Security",
+              fluidRow(
+                column(width = 6,
+                       box(title = "Shooting points", solidHeader = TRUE,
+                           leafletOutput("shooting_map",height = 500))),
+                column(width = 6,
+                       box(title="Arresting points", solidHeader = TRUE,
+                           leafletOutput("arrest_map",height = 500)))
+              )
+            ),
 
             tabItem(
                 tabName = "about",
@@ -748,6 +810,32 @@ server <- function(input, output) {
         addCircles(data = F2, radius=30 ,weight = 1, popup = ~as.character(F2$facname),fill=TRUE, opacity = 0,color = "black",fillColor = ~pal1(facdomain),fillOpacity = 1,stroke = TRUE) %>%
         addLegend(pal = pal1, values = F2$facdomain, opacity = 2, title = "Factors of Parks",position = "bottomright")
       
+    })
+    
+    output$shooting_map <- renderLeaflet({
+      
+      leaflet(data = shooting) %>% addTiles() %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        addMarkers(lat =~Latitude,lng=~Longitude,popup = ~as.character(BORO),
+                   clusterOptions = markerClusterOptions()) %>% 
+        addCircleMarkers(radius = 2.5, color="red", stroke = FALSE, fillOpacity = 0.5)
+   
+    })
+    
+    output$arrest_map <- renderLeaflet({
+      
+      leaflet(data = arrest_data) %>% addTiles() %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        addMarkers(lat =~Latitude,lng=~Longitude,
+                   popup = cat(paste0(
+                     "Offense Description: ", ~OFNS_DESC,"\n",
+                     "Perpetrator’s sex: ",~PERP_SEX,"\n",
+                     "Perpetrator’s age: ",~AGE_GROUP,"\n",
+                     "Perpetrator’s race:
+                     ",~PERP_RACE)),
+                   clusterOptions =
+                     markerClusterOptions()) %>%
+        addCircleMarkers(radius = 1.5, color="red", stroke = FALSE, fillOpacity = 0.5)
     })
     
     output$slickr <- renderSlickR({

@@ -264,7 +264,7 @@ ui <- dashboardPage(
     
     dashboardBody(
       shinyDashboardThemes(
-        theme = "purple_gradient"
+        theme = "blue_gradient"
       ),
         tags$head(tags$style(HTML('
                               .same-row {

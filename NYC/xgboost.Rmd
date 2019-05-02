@@ -1,0 +1,96 @@
+---
+title: "Untitled"
+author: "Jianhao Yan"
+date: "5/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##data and packages preparation
+```{r}
+library(tidyverse)
+library(glmnet)
+
+library(randomForest)
+sat<-read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
+sat<-sat%>%
+  filter(`Average SAT Score` != "NA")
+```
+
+
+
+```{r}
+sat_1<-sat[,c(12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,36)]
+sat_2<- na.omit(sat_1)
+sat_2<-sat_2[,-15]
+index <- sample(nrow(sat_2),0.7*nrow(sat_2),replace = FALSE)
+train <- sat_2[index,]
+test <- sat_2[-index,]
+output <- as.matrix(train[,15])
+input <-as.matrix(train[,-15])
+output2 <- as.matrix(test[,15])
+input2 <-as.matrix(test[,-15])
+
+
+```
+
+```{r}
+fit = glmnet(input,output, family="gaussian", nlambda=, alpha=1)
+print(fit)
+```
+
+```{r}
+plot(fit, xvar="lambda", label=TRUE)
+
+coef(fit)[,17]
+
+pred <- predict(fit, newx=input2, s=  2, type = "response")
+rss <- sum((output2 - pred)^2)
+sqrt(rss)
+
+# hehe
+hehe <- seq(1,50,1)
+guitu <- c()
+for (i in hehe) {
+  pred <- predict(fit, newx=input2, s=i, type = "response")
+  rss <- sum((output2 - pred)^2)
+  guitu[i]<-sqrt(rss)
+}
+plot(guitu)
+```
+
+```{r}
+library(xgboost)
+model_3<- xgboost(data = input, label = output, max.depth = 2, eta = 0.4, nthread =2 , nrounds = 50)
+predxgb <- predict(model_3, newdata = input2, type = "response")
+rssxgb <- sum((output2 - predxgb)^2)/nrow(input2)
+sqrt(rssxgb)
+
+hehe <- seq(1,50,1)
+etahehe <- seq(0,2,0.1)
+guitu <- matrix(nrow = 50, ncol = 21)
+for (i in hehe) {
+  for (e in 1:length(etahehe)) {
+    model_3<- xgboost(data = input, label = output, max.depth = 2, eta = etahehe[e], nthread =2 , nrounds = i)
+    predxgb <- predict(model_3, newdata = input2, type = "response")
+    rssxgb <- sum((output2 - predxgb)^2)/nrow(input2)
+    guitu[i,e]<- sqrt(rssxgb)
+  }
+}
+which.min(guitu)
+min(guitu)
+
+install.packages("remotes")
+remotes::install_github("davidADSP/xgboostExplainer")
+
+install.packages("devtools") 
+library(devtools) 
+install_github("AppliedDataSciencePartners/xgboostExplainer")
+col_names <- names(as.data.frame(input))
+imp = xgb.importance(model=model_3, feature_names = col_names)
+xgb.plot.importance(imp)
+```
+

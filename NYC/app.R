@@ -433,7 +433,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                 tabName = "DT",
                 fluidRow(
                     tabBox(
-                         tabPanel("Cleaned Data" , DT::dataTableOutput("tableNYC"), width = 12, height = 550),width = 24,height ="500px"
+                         tabPanel("Cleaned Data" , DT::dataTableOutput("tableNYC"), width = 12),width = 24,height ="600px"
                     )
                     
                     )
@@ -615,7 +615,7 @@ server <- function(input, output) {
 
     output$tableNYC <- DT::renderDataTable({
       
-        DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "300px"),rownames= FALSE
+        DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "500px"),rownames= FALSE
         )})
     
     output$sunburstPlot <-  renderSund2b({ 

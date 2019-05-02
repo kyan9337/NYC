@@ -89,7 +89,7 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bro
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
 
-
+#########Fiona and Aeris############
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
                     domain = nyc_boroughs@data$borough)
@@ -114,20 +114,22 @@ burdern<-function(a,b){
   q<-dfi%>%
     filter(borough == a | borough == b)%>%
     ggplot(aes(x = borough, y = pct_hh_rent_burd, fill = subborough))+
-    geom_bar(stat="identity", position=position_dodge())
+    geom_bar(stat="identity", position=position_dodge())+
+    theme(legend.position = "none")
   ggplotly(q)
 }
 
 commute<- function(a,b){
-  q<-dfi%>%
+  w<-dfi%>%
     filter(borough == a | borough == b)%>%
     ggplot(aes(x = borough, y = mean_commute, fill = subborough))+
-    geom_bar(stat="identity", position=position_dodge())
-  ggplotly(q)
+    geom_bar(stat="identity", position=position_dodge())+
+    theme(legend.position = "none")
+  ggplotly(w)
 }
 
 crime<-function(a,b){
-  q<-dfi%>%
+  e<-dfi%>%
     group_by(subborough)%>%
     filter(borough == a | borough == b)%>%
     plot_ly(labels = ~subborough, values = ~crime_per_1000)%>%
@@ -135,12 +137,13 @@ crime<-function(a,b){
     layout(title = "Crime rate",  showlegend = F,
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-  q
+   
+  e
   
 }
 
 education<-function(a,b){
-  q<-dfi%>%
+  r<-dfi%>%
     group_by(subborough)%>%
     filter(borough == a | borough == b)%>%
     plot_ly(labels = ~subborough, values = ~pct_bach_deg)%>%
@@ -148,15 +151,17 @@ education<-function(a,b){
     layout(title = "Crime rate",  showlegend = F,
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-  q
+    
+  r
 }
 
 poverty<-function(a,b){
-  q<-dfi%>%
+  t<-dfi%>%
     filter(borough == a | borough == b)%>%
     ggplot(aes(x = borough, y = poverty_rate, fill = subborough))+
-    geom_bar(stat="identity", position=position_dodge())
-  ggplotly(q)
+    geom_bar(stat="identity", position=position_dodge())+
+    theme(legend.position = "none")
+  ggplotly(t)
 }
 
 
@@ -184,7 +189,8 @@ tree <- d3_nest(dat, value_cols = "size")
 count <- All_facility%>%
   group_by(borocd,facdomain)%>%
   summarise(n = n())
-################################
+colnames(count) <- c("borocd","community_name", "count")
+#########Fiona and Aeris############
 logo_blue_gradient <- shinyDashboardLogoDIY(
   
   boldText = "NYC Profile"
@@ -195,133 +201,6 @@ logo_blue_gradient <- shinyDashboardLogoDIY(
   ,badgeTextSize = 2
   ,badgeBackColor = "#40E0D0"
   ,badgeBorderRadius = 3
-  
-)
-
-theme_blue_gradient <- shinyDashboardThemeDIY(
-  
-  ### general
-  appFontFamily = "Arial"
-  ,appFontColor = "rgb(0,0,0)"
-  ,primaryFontColor = "rgb(0,0,0)"
-  ,infoFontColor = "rgb(0,0,0)"
-  ,successFontColor = "rgb(0,0,0)"
-  ,warningFontColor = "rgb(0,0,0)"
-  ,dangerFontColor = "rgb(0,0,0)"
-  ,bodyBackColor = "rgb(248,248,248)"
-  
-  ### header
-  ,logoBackColor = "rgb(23,103,124)"
-  
-  ,headerButtonBackColor = "rgb(238,238,238)"
-  ,headerButtonIconColor = "rgb(75,75,75)"
-  ,headerButtonBackColorHover = "rgb(210,210,210)"
-  ,headerButtonIconColorHover = "rgb(0,0,0)"
-  
-  ,headerBackColor = "rgb(238,238,238)"
-  ,headerBoxShadowColor = "#aaaaaa"
-  ,headerBoxShadowSize = "2px 2px 2px"
-  
-  ### sidebar
-  ,sidebarBackColor = cssGradientThreeColors(
-    direction = "down"
-    ,colorStart = "rgb(20,97,117)"
-    ,colorMiddle = "rgb(56,161,187)"
-    ,colorEnd = "rgb(3,22,56)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 50
-    ,colorEndPos = 100
-  )
-  ,sidebarPadding = 0
-  
-  ,sidebarMenuBackColor = "transparent"
-  ,sidebarMenuPadding = 0
-  ,sidebarMenuBorderRadius = 0
-  
-  ,sidebarShadowRadius = "3px 5px 5px"
-  ,sidebarShadowColor = "#aaaaaa"
-  
-  ,sidebarUserTextColor = "rgb(255,255,255)"
-  
-  ,sidebarSearchBackColor = "rgb(55,72,80)"
-  ,sidebarSearchIconColor = "rgb(153,153,153)"
-  ,sidebarSearchBorderColor = "rgb(55,72,80)"
-  
-  ,sidebarTabTextColor = "rgb(255,255,255)"
-  ,sidebarTabTextSize = 13
-  ,sidebarTabBorderStyle = "none none solid none"
-  ,sidebarTabBorderColor = "rgb(35,106,135)"
-  ,sidebarTabBorderWidth = 1
-  
-  ,sidebarTabBackColorSelected = cssGradientThreeColors(
-    direction = "right"
-    ,colorStart = "rgba(44,222,235,1)"
-    ,colorMiddle = "rgba(44,222,235,1)"
-    ,colorEnd = "rgba(0,255,213,1)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 30
-    ,colorEndPos = 100
-  )
-  ,sidebarTabTextColorSelected = "rgb(0,0,0)"
-  ,sidebarTabRadiusSelected = "0px 20px 20px 0px"
-  
-  ,sidebarTabBackColorHover = cssGradientThreeColors(
-    direction = "right"
-    ,colorStart = "rgba(44,222,235,1)"
-    ,colorMiddle = "rgba(44,222,235,1)"
-    ,colorEnd = "rgba(0,255,213,1)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 30
-    ,colorEndPos = 100
-  )
-  ,sidebarTabTextColorHover = "rgb(50,50,50)"
-  ,sidebarTabBorderStyleHover = "none none solid none"
-  ,sidebarTabBorderColorHover = "rgb(75,126,151)"
-  ,sidebarTabBorderWidthHover = 1
-  ,sidebarTabRadiusHover = "0px 20px 20px 0px"
-  
-  ### boxes
-  ,boxBackColor = "rgb(255,255,255)"
-  ,boxBorderRadius = 5
-  ,boxShadowSize = "0px 1px 1px"
-  ,boxShadowColor = "rgba(0,0,0,.1)"
-  ,boxTitleSize = 16
-  ,boxDefaultColor = "rgb(210,214,220)"
-  ,boxPrimaryColor = "rgba(44,222,235,1)"
-  ,boxInfoColor = "rgb(210,214,220)"
-  ,boxSuccessColor = "rgba(0,255,213,1)"
-  ,boxWarningColor = "rgb(244,156,104)"
-  ,boxDangerColor = "rgb(255,88,55)"
-  
-  ,tabBoxTabColor = "rgb(255,255,255)"
-  ,tabBoxTabTextSize = 14
-  ,tabBoxTabTextColor = "rgb(0,0,0)"
-  ,tabBoxTabTextColorSelected = "rgb(0,0,0)"
-  ,tabBoxBackColor = "rgb(255,255,255)"
-  ,tabBoxHighlightColor = "rgba(44,222,235,1)"
-  ,tabBoxBorderRadius = 5
-  
-  ### inputs
-  ,buttonBackColor = "rgb(245,245,245)"
-  ,buttonTextColor = "rgb(0,0,0)"
-  ,buttonBorderColor = "rgb(200,200,200)"
-  ,buttonBorderRadius = 5
-  
-  ,buttonBackColorHover = "rgb(235,235,235)"
-  ,buttonTextColorHover = "rgb(100,100,100)"
-  ,buttonBorderColorHover = "rgb(200,200,200)"
-  
-  ,textboxBackColor = "rgb(255,255,255)"
-  ,textboxBorderColor = "rgb(200,200,200)"
-  ,textboxBorderRadius = 5
-  ,textboxBackColorSelect = "rgb(245,245,245)"
-  ,textboxBorderColorSelect = "rgb(200,200,200)"
-  
-  ### tables
-  ,tableBackColor = "rgb(255,255,255)"
-  ,tableBorderColor = "rgb(240,240,240)"
-  ,tableBorderTopSize = 1
-  ,tableBorderRowSize = 1
   
 )
 
@@ -365,7 +244,7 @@ ui <- dashboardPage(
                               
                      ),
                      menuItem("flood risk",
-                              tabName = "wifi",
+                              tabName = "flood",
                               icon = icon("bar-chart-o")
                               
                      ),
@@ -389,7 +268,9 @@ ui <- dashboardPage(
     ),
     
     dashboardBody(
-      theme_blue_gradient,
+      shinyDashboardThemes(
+        theme = "blue_gradient"
+      ),
         tags$head(tags$style(HTML('
                               .same-row {
                               max-width: 200px;
@@ -485,25 +366,24 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                 tabName = "map_overall",
                 
                 fluidRow(
+                  box(width = 3, height = 20,
+                    title = "Controls", status = "primary",
                     
-                    column(width = 12,
-                           box(title = "NYC Overview",width = NULL, solidHeader = TRUE,
+                    
+                    radioButtons("Variable", "Compare Variable",
+                                 
+                                 chos,
+                                 
+                                 selected = chos[1])
+                    
+                  ),
+                           box(width = 9,height = 9,
                                leafletOutput("NYC_MAP",height = 500)
-                           ),
-                           box(
-                               title = "Controls", status = "primary", solidHeader = TRUE,
-                               
-                               
-                               radioButtons("Variable", "Compare Variable",
-                                           
-                                            chos,
-                                           
-                                            selected = chos[1])
-                               
                            )
+                           
                     )
                     
-                )
+                
             ),
             tabItem(
               tabName = "Vis", 
@@ -516,7 +396,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                        when you clic in Greenwich Village/Financial District in Manhattan, you will see that 77.6% of the land area
                        is occupied as parking lots and 22.4% is facilities. Among the facilities’ land, 49% is public schools’ land, 
                        28% is parks’ land, 19% is health facilities’ land and 4% is libraries’ land.",size = 10,style = "font-family: 'Arial',")),
-                box(title= "Land use sunburst plot", status = "warning", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
+                box(title= "Land use sunburst plot", status = "primary", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
               )
             ),
             
@@ -540,30 +420,15 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                                 leafletOutput("facility_1",height = 500),
                                 br(),
                                 br(),
-                                br(),
-                                br(),
-                               
-                                valueBoxOutput("progressBox1"),
-                                valueBoxOutput("progressBox2"),
-                                valueBoxOutput("progressBox3"),
-                                valueBoxOutput("progressBox4"),
-                                valueBoxOutput("progressBox5"),
-                                valueBoxOutput("progressBox6"))     
+                                tableOutput("table1")
+                                )     
                                       
                            
                            ,box(
                                 leafletOutput("facility_2",height = 500),
                                 br(),
                                 br(),
-                                br(),
-                                br(),
-                                
-                                valueBoxOutput("progressBox11"),
-                                valueBoxOutput("progressBox22"),
-                                valueBoxOutput("progressBox33"),
-                                valueBoxOutput("progressBox44"),
-                                valueBoxOutput("progressBox55"),
-                                valueBoxOutput("progressBox66")   
+                                tableOutput("table2")
                            )
                     
                 )
@@ -573,7 +438,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                 tabName = "DT",
                 fluidRow(
                     tabBox(
-                         tabPanel("Cleaned Data" , DT::dataTableOutput("tableNYC"), width = 12, height = 550),width = 24,height ="500px"
+                         tabPanel("Cleaned Data" , DT::dataTableOutput("tableNYC"), width = 12),width = 24,height ="600px"
                     )
                     
                     )
@@ -582,30 +447,59 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             tabItem(
               tabName = "Difference",
               fluidRow(
-                box(title = "Controls", status = "warning", solidHeader = TRUE,
+                column(width = 2,
+                box(title = "Controls", status = "warning", solidHeader = TRUE,width = 12,
                     selectInput("borough1","Select borough 1:",borough,selected = borough[1]),
-                    br(),
-                    br(),
-                    br(),
                     selectInput("borough2","Select borough 2:" ,borough,selected = borough[3])
-                ),
+                )),
+                column(width = 10,
                 box(title = "Rent Burden", solidHeader = TRUE,
-                    plotlyOutput("rentburden"))
+                    plotlyOutput("rentburden")),
+                box(title = "Crime Rate", solidHeader = TRUE,
+                    plotlyOutput("crimerate")),
+                box(title = "Commute Time", solidHeader = TRUE,
+                    plotlyOutput("commute")),
+                box(title = "Education", solidHeader = TRUE,
+                    plotlyOutput("education")),
+                box(title = "Poverty", solidHeader = TRUE,
+                    plotlyOutput("poverty"))
+              )
               )
             ),
             
             tabItem(
               tabName = "safety",
               fluidRow(
-                column(width = 6,
-                       box(title = "Shooting points", solidHeader = TRUE,
+                column(width = 12,
+                       box(width=12,title = "Shooting points", solidHeader = TRUE,
                            leafletOutput("shooting_map",height = 500))),
-                column(width = 6,
-                       box(title="Arresting points", solidHeader = TRUE,
+                column(width = 12,
+                       box(width = 12,title="Arresting points", solidHeader = TRUE,
                            leafletOutput("arrest_map",height = 500)))
               )
             ),
 
+            tabItem(
+              tabName = "flood",
+              fluidRow(
+                column(width = 2,
+                       box(title = "Controls",status = "warning",solidHeader = TRUE, width = 12,
+                           selectInput("borough111","Select borough 1:",borough,selected = borough[1]),
+                           selectInput("borough222","Select borough 2:" ,borough,selected = borough[3])))
+                ,
+                column(width = 10,
+                       box(title = "Lot Area",solidHeader = TRUE,
+                           plotlyOutput("lot")),
+                       box(title = "Number of buildings",solidHeader = TRUE,
+                           plotlyOutput("building")),
+                       box(title = "Number of residential housing units",solidHeader = TRUE,
+                           plotlyOutput("residential")),
+                       box(title = "Open Space",solidHeader = TRUE,
+                           plotlyOutput("open"))
+                       )
+              )
+            ),
+            
             tabItem(
                 tabName = "about",
                 fluidRow(
@@ -656,103 +550,18 @@ server <- function(input, output) {
       burdern(input$borough1,input$borough2)
     })
     
-    output$progressBox1 <- renderValueBox({
-      
-      fac1 <- filter(count, borocd ==input$boro1 & facdomain =="Administration of Government" )
-      valueBox(
-       
-        paste0(fac1$n), "Administration of Government", icon = icon("list"),
-        color = "purple"
-      )
+    output$table1 <- renderTable({
+      count %>%
+        filter(borocd ==input$boro1) %>%
+        select(community_name, count) %>%
+        arrange(desc(count))
     })
     
-    output$progressBox2 <- renderValueBox({
-      
-      fac2 <- filter(count, borocd ==input$boro1 & facdomain =="Core Infrastructure and Transportation" )
-      valueBox(
-       
-        paste0(fac2$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
-        color = "green"
-      )
-    })
-    output$progressBox3 <- renderValueBox({
-      
-      fac3 <- filter(count, borocd ==input$boro1 & facdomain =="Education, Child Welfare, and Youth" )
-      valueBox(
-        
-        paste0(fac3$n), "Education, Child Welfare, and Youth", icon = icon("city"),
-        color = "orange"
-      )
-    })
-    
-    output$progressBox4 <- renderValueBox({
-      fac4 <- filter(count, borocd ==input$boro1 & facdomain =="Health and Human Services" )
-      
-      valueBox(
-       
-        paste0(fac4$n), "Health and Human Services", icon = icon("ambulance"),
-        color = "olive"
-      )
-    })
-    
-    output$progressBox5 <- renderValueBox({
-      fac5 <- filter(count, borocd ==input$boro1 & facdomain =="Libraries and Cultural Programs" )
-      
-     valueBox(
-       
-        paste0(fac5$n), "Libraries and Cultural Programs", icon = icon("archive"),
-        color = "yellow"
-      )
-    })
-    
-    output$progressBox6 <- renderValueBox({  
-      fac6 <- filter(count, borocd ==input$boro1 & facdomain =="Parks, Gardens, and Historical Sites" )
-      valueBox(
-       
-        
-        paste0(fac6$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
-        color = "maroon"
-      )
-    })
-    
-    
-    output$progressBox11 <- renderValueBox({
-      
-      fac11 <- filter(count, borocd ==input$boro2 & facdomain =="Administration of Government" )
-      valueBox(
-        
-        paste0(fac11$n), "Administration of Government", icon = icon("list"),
-        color = "purple"
-      )
-    })
-    
-    output$progressBox22 <- renderValueBox({
-      
-      fac22 <- filter(count, borocd ==input$boro2 & facdomain =="Core Infrastructure and Transportation" )
-      valueBox(
-        
-        paste0(fac22$n), "	Core Infrastructure and Transportation", icon = icon("bus"),
-        color = "green"
-      )
-    })
-    output$progressBox33 <- renderValueBox({
-      
-      fac33 <- filter(count, borocd ==input$boro2 & facdomain =="Education, Child Welfare, and Youth" )
-      valueBox(
-        
-        paste0(fac33$n), "Education, Child Welfare, and Youth", icon = icon("city"),
-        color = "orange"
-      )
-    })
-    
-    output$progressBox44 <- renderValueBox({
-      fac44 <- filter(count, borocd ==input$boro2 & facdomain =="Health and Human Services" )
-      
-      valueBox(
-        
-        paste0(fac44$n), "Health and Human Services", icon = icon("ambulance"),
-        color = "aqua"
-      )
+    output$table2 <- renderTable({
+      count %>%
+        filter(borocd ==input$boro2) %>%
+        select(community_name, count) %>%
+        arrange(desc(count))
     })
     
     output$progressBox55 <- renderValueBox({
@@ -782,7 +591,7 @@ server <- function(input, output) {
       cen1 <- filter(centers0_avg,region == input$boro1)
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 
-        setView(cen1$x,cen1$y , zoom = 14) %>% 
+        setView(cen1$x,cen1$y , zoom = 12.5) %>% 
         addPolygons(stroke=TRUE,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
                                                                                                                                                               bringToFront = F)) %>%
         addProviderTiles("CartoDB.Positron") %>%
@@ -798,7 +607,7 @@ server <- function(input, output) {
       cen2 <- filter(centers0_avg,region == input$boro2)
       leaflet(nyc_boroughs) %>%
         addProviderTiles("CartoDB.Positron")%>% 
-        setView(cen2$x,cen2$y , zoom = 14) %>% 
+        setView(cen2$x,cen2$y , zoom = 12.5) %>% 
         addPolygons(stroke=T,weight=1,fillOpacity = 0.5, smoothFactor = 0.5,color = "black",fillColor = ~pal0(borough),highlightOptions = highlightOptions(color = "white", weight = 2,
                                                                                                                                                               bringToFront = FALSE)) %>%
         addProviderTiles("CartoDB.Positron") %>%
@@ -840,7 +649,7 @@ server <- function(input, output) {
 
     output$tableNYC <- DT::renderDataTable({
       
-        DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "300px"),rownames= FALSE
+        DT::datatable(map_data_nyc, options = list(searching = TRUE,pageLength = 8,lengthMenu = c(8, 2, 4, 10), scrollX = T,scrollY = "500px"),rownames= FALSE
         )})
     
     output$sunburstPlot <-  renderSund2b({ 
@@ -850,7 +659,74 @@ server <- function(input, output) {
       
     })
     
-    }
+    output$commute <- renderPlotly({
+
+      commute(input$borough1,input$borough2)
+    })
+
+    output$education <- renderPlotly({
+
+      education(input$borough1,input$borough2)
+    })
+
+    output$poverty <- renderPlotly({
+
+      poverty(input$borough1,input$borough2)
+    })
+
+    output$crimerate <- renderPlotly({
+
+      crime(input$borough1,input$borough2)
+    })
+
+    output$lot <- renderPlotly({
+
+      QSI_area <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_area, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Lot Area are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(QSI_area)
+    })
+
+    output$building <- renderPlotly({
+
+      QSI_bldg <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_bldg, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge())+
+        ggtitle("Buildings are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(QSI_bldg)
+    })
+
+    output$residential <- renderPlotly({
+
+      BM_units <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_resunits, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Residential Housing Units are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(BM_units)
+    })
+
+    output$open <- renderPlotly({
+
+      BM_open <- dfi%>%
+        group_by(borough)%>%
+        filter(borough == input$borough111| borough == input$borough222)%>%
+        ggplot(aes(x=borough, y=fp_500_openspace, fill=subborough)) +
+        geom_bar(stat="identity", position=position_dodge()) +
+        ggtitle("Total Open Space are in the 1% Annual Chance floodplain")+
+        theme(legend.position = "none")
+      ggplotly(BM_open)
+    })
+ }
 
 
 # Run the application

@@ -89,7 +89,7 @@ nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% bro
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% queens_code, "Queens",nyc_boroughs@data$borough)
 nyc_boroughs@data$borough <- ifelse(nyc_boroughs@data$communityDistrict %in% staten_code, "Staten Island",nyc_boroughs@data$borough)
 
-
+#########Fiona and Aeris############
 # leaflet
 pal0 <- colorFactor(palette = "Pastel1",
                     domain = nyc_boroughs@data$borough)
@@ -185,7 +185,7 @@ count <- All_facility%>%
   group_by(borocd,facdomain)%>%
   summarise(n = n())
 colnames(count) <- c("borocd","community_name", "count")
-################################
+#########Fiona and Aeris############
 logo_blue_gradient <- shinyDashboardLogoDIY(
   
   boldText = "NYC Profile"
@@ -196,133 +196,6 @@ logo_blue_gradient <- shinyDashboardLogoDIY(
   ,badgeTextSize = 2
   ,badgeBackColor = "#40E0D0"
   ,badgeBorderRadius = 3
-  
-)
-
-theme_blue_gradient <- shinyDashboardThemeDIY(
-  
-  ### general
-  appFontFamily = "Arial"
-  ,appFontColor = "rgb(0,0,0)"
-  ,primaryFontColor = "rgb(0,0,0)"
-  ,infoFontColor = "rgb(0,0,0)"
-  ,successFontColor = "rgb(0,0,0)"
-  ,warningFontColor = "rgb(0,0,0)"
-  ,dangerFontColor = "rgb(0,0,0)"
-  ,bodyBackColor = "rgb(248,248,248)"
-  
-  ### header
-  ,logoBackColor = "rgb(23,103,124)"
-  
-  ,headerButtonBackColor = "rgb(238,238,238)"
-  ,headerButtonIconColor = "rgb(75,75,75)"
-  ,headerButtonBackColorHover = "rgb(210,210,210)"
-  ,headerButtonIconColorHover = "rgb(0,0,0)"
-  
-  ,headerBackColor = "rgb(238,238,238)"
-  ,headerBoxShadowColor = "#aaaaaa"
-  ,headerBoxShadowSize = "2px 2px 2px"
-  
-  ### sidebar
-  ,sidebarBackColor = cssGradientThreeColors(
-    direction = "down"
-    ,colorStart = "rgb(173,216,230)"
-    ,colorMiddle = "rgb(135,206,250)"
-    ,colorEnd = "rgb(56,161,187)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 50
-    ,colorEndPos = 100
-  )
-  ,sidebarPadding = 0
-  
-  ,sidebarMenuBackColor = "transparent"
-  ,sidebarMenuPadding = 0
-  ,sidebarMenuBorderRadius = 0
-  
-  ,sidebarShadowRadius = "3px 5px 5px"
-  ,sidebarShadowColor = "#aaaaaa"
-  
-  ,sidebarUserTextColor = "rgb(255,255,255)"
-  
-  ,sidebarSearchBackColor = "rgb(55,72,80)"
-  ,sidebarSearchIconColor = "rgb(153,153,153)"
-  ,sidebarSearchBorderColor = "rgb(55,72,80)"
-  
-  ,sidebarTabTextColor = "rgb(0,0,0)"
-  ,sidebarTabTextSize = 13
-  ,sidebarTabBorderStyle = "none none solid none"
-  ,sidebarTabBorderColor = "rgb(35,106,135)"
-  ,sidebarTabBorderWidth = 1
-  
-  ,sidebarTabBackColorSelected = cssGradientThreeColors(
-    direction = "right"
-    ,colorStart = "rgba(44,222,235,1)"
-    ,colorMiddle = "rgba(44,222,235,1)"
-    ,colorEnd = "rgba(0,255,213,1)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 30
-    ,colorEndPos = 100
-  )
-  ,sidebarTabTextColorSelected = "rgb(0,0,0)"
-  ,sidebarTabRadiusSelected = "0px 20px 20px 0px"
-  
-  ,sidebarTabBackColorHover = cssGradientThreeColors(
-    direction = "right"
-    ,colorStart = "rgba(44,222,235,1)"
-    ,colorMiddle = "rgba(44,222,235,1)"
-    ,colorEnd = "rgba(0,255,213,1)"
-    ,colorStartPos = 0
-    ,colorMiddlePos = 30
-    ,colorEndPos = 100
-  )
-  ,sidebarTabTextColorHover = "rgb(50,50,50)"
-  ,sidebarTabBorderStyleHover = "none none solid none"
-  ,sidebarTabBorderColorHover = "rgb(75,126,151)"
-  ,sidebarTabBorderWidthHover = 1
-  ,sidebarTabRadiusHover = "0px 20px 20px 0px"
-  
-  ### boxes
-  ,boxBackColor = "rgb(255,255,255)"
-  ,boxBorderRadius = 5
-  ,boxShadowSize = "0px 1px 1px"
-  ,boxShadowColor = "rgba(0,0,0,.1)"
-  ,boxTitleSize = 16
-  ,boxDefaultColor = "rgb(210,214,220)"
-  ,boxPrimaryColor = "rgba(44,222,235,1)"
-  ,boxInfoColor = "rgb(210,214,220)"
-  ,boxSuccessColor = "rgba(0,255,213,1)"
-  ,boxWarningColor = "rgb(244,156,104)"
-  ,boxDangerColor = "rgb(255,88,55)"
-  
-  ,tabBoxTabColor = "rgb(255,255,255)"
-  ,tabBoxTabTextSize = 14
-  ,tabBoxTabTextColor = "rgb(0,0,0)"
-  ,tabBoxTabTextColorSelected = "rgb(0,0,0)"
-  ,tabBoxBackColor = "rgb(255,255,255)"
-  ,tabBoxHighlightColor = "rgba(44,222,235,1)"
-  ,tabBoxBorderRadius = 5
-  
-  ### inputs
-  ,buttonBackColor = "rgb(245,245,245)"
-  ,buttonTextColor = "rgb(0,0,0)"
-  ,buttonBorderColor = "rgb(200,200,200)"
-  ,buttonBorderRadius = 5
-  
-  ,buttonBackColorHover = "rgb(235,235,235)"
-  ,buttonTextColorHover = "rgb(100,100,100)"
-  ,buttonBorderColorHover = "rgb(200,200,200)"
-  
-  ,textboxBackColor = "rgb(255,255,255)"
-  ,textboxBorderColor = "rgb(200,200,200)"
-  ,textboxBorderRadius = 5
-  ,textboxBackColorSelect = "rgb(245,245,245)"
-  ,textboxBorderColorSelect = "rgb(200,200,200)"
-  
-  ### tables
-  ,tableBackColor = "rgb(255,255,255)"
-  ,tableBorderColor = "rgb(240,240,240)"
-  ,tableBorderTopSize = 1
-  ,tableBorderRowSize = 1
   
 )
 
@@ -390,7 +263,9 @@ ui <- dashboardPage(
     ),
     
     dashboardBody(
-      theme_blue_gradient,
+      shinyDashboardThemes(
+        theme = "purple_gradient"
+      ),
         tags$head(tags$style(HTML('
                               .same-row {
                               max-width: 200px;
@@ -486,25 +361,24 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                 tabName = "map_overall",
                 
                 fluidRow(
+                  box(width = 3, height = 20,
+                    title = "Controls", status = "primary",
                     
-                    column(width = 12,
-                           box(title = "NYC Overview",width = NULL, solidHeader = TRUE,
+                    
+                    radioButtons("Variable", "Compare Variable",
+                                 
+                                 chos,
+                                 
+                                 selected = chos[1])
+                    
+                  ),
+                           box(width = 9,height = 9,
                                leafletOutput("NYC_MAP",height = 500)
-                           ),
-                           box(
-                               title = "Controls", status = "primary", solidHeader = TRUE,
-                               
-                               
-                               radioButtons("Variable", "Compare Variable",
-                                           
-                                            chos,
-                                           
-                                            selected = chos[1])
-                               
                            )
+                           
                     )
                     
-                )
+                
             ),
             tabItem(
               tabName = "Vis", 
@@ -517,7 +391,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
                        when you clic in Greenwich Village/Financial District in Manhattan, you will see that 77.6% of the land area
                        is occupied as parking lots and 22.4% is facilities. Among the facilities’ land, 49% is public schools’ land, 
                        28% is parks’ land, 19% is health facilities’ land and 4% is libraries’ land.",size = 10,style = "font-family: 'Arial',")),
-                box(title= "Land use sunburst plot", status = "warning", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
+                box(title= "Land use sunburst plot", status = "primary", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
               )
             ),
             

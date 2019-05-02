@@ -125,6 +125,7 @@ set.seed(2019)
 arrest<-na.omit(arrest)
 arrest%>%filter(YEAR==2017) %>% 
   sample_n(12000,replace = FALSE)->arrest_data
+write.csv(arrest_data,"arrest_data.csv")
 
 leaflet(data = arrest_data) %>% addTiles() %>%
    addProviderTiles("CartoDB.Positron") %>%

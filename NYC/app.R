@@ -264,13 +264,13 @@ ui <- dashboardPage(
             ),
 
             menuItem("Education", tabName = "education", icon = icon("question-circle"),
-                     menuItem("Simple comparsion",
-                              tabName = "Difference",
+                     menuItem("Mapping",
+                              tabName = "edu_mapping",
                               icon = icon("bar-chart-o")
                               
                      ),
-                     menuItem("flood risk",
-                              tabName = "flood",
+                     menuItem("Distribution",
+                              tabName = "edu_dis",
                               icon = icon("bar-chart-o")
                               
                      ) 
@@ -520,6 +520,30 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             ),
             
             tabItem(
+              tabName = "edu_dis",
+              fluidRow(
+                column(width = 12,
+                       box(width=12,title = "Shooting points", solidHeader = TRUE,
+                           plotOutput("edu_distribution",height = 500))),
+                column(width = 12,
+                       box(width = 12,title="Arresting points", solidHeader = TRUE
+                           )
+              )
+            ),
+            
+            tabItem(
+              tabName = "edu_mapping",
+              fluidRow(
+                column(width = 12,
+                       box(width=12,title = "Shooting points", solidHeader = TRUE,
+                           leafletOutput("shooting_map",height = 500))),
+                column(width = 12,
+                       box(width = 12,title="Arresting points", solidHeader = TRUE,
+                           leafletOutput("arrest_map",height = 500)))
+              )
+            ),
+            
+            tabItem(
                 tabName = "about",
                 fluidRow(
                   column(width = 12,
@@ -539,7 +563,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             )
         )
     )
-)
+))
 
 
 # Define server logic required to draw a histogram
@@ -728,7 +752,29 @@ server <- function(input, output) {
         theme(legend.position = "none")
       ggplotly(BM_open)
     })
- }
+ 
+
+    output$edu_distribution <- renderPlot({
+      
+      hs_data<-readxl::read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
+      names(hs_data)[36] <-"sat" 
+      mean_sat <- mean(hs_data$sat,na.rm = TRUE)
+      median_sat <- median(hs_data$sat,na.rm = TRUE)
+      
+      edu_dis <- hs_data %>%
+        ggplot(aes(x=sat))+
+        geom_histogram(fill="blue",alpha=0.5,col="black")+
+        ylab("School Count")+
+        xlab("Average SAT Score")+
+        geom_vline(xintercept = mean_sat,linetype = 2,col="yellow")+
+        geom_vline(xintercept = median_sat,linetype="dotdash",col="green")+
+        geom_text(aes(x = 1200, y = 60, label = "Median=1209", show.legend=F)) + 
+        geom_text(aes(x = 1255, y = 50, label = "Mean=1255", show.legend=F)) 
+      ggplot(edu_dis)
+    })
+    
+}
+
 
 
 # Run the application

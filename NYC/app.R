@@ -262,6 +262,7 @@ ui <- dashboardPage(
                      )
                      
             ),
+<<<<<<< HEAD
             menuItem("Education", tabName = "education", icon = icon("question-circle"),
                      menuItem("Simple comparsion",
                               tabName = "Difference",
@@ -278,6 +279,9 @@ ui <- dashboardPage(
                      
                      
                      ),
+=======
+            
+>>>>>>> 3fd4c9f078f562044dc7bb0ea2d28c3e9dedba72
             menuItem("About", tabName = "about", icon = icon("question-circle"))
         )
     ),
@@ -579,26 +583,7 @@ server <- function(input, output) {
         arrange(desc(count))
     })
     
-    output$progressBox55 <- renderValueBox({
-      fac55 <- filter(count, borocd ==input$boro2 & facdomain =="Libraries and Cultural Programs" )
-      
-      valueBox(
-        
-        paste0(fac55$n), "Libraries and Cultural Programs", icon = icon("archive"),
-        color = "yellow"
-      )
-    })
-    
-    output$progressBox66 <- renderValueBox({  
-      fac66 <- filter(count, borocd ==input$boro2 & facdomain =="Parks, Gardens, and Historical Sites" )
-      valueBox(
-        
-        
-        paste0(fac66$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
-        color = "maroon"
-      )
-    })
-    
+  
     output$facility_1 <- renderLeaflet({
       
       F1 <- filter(All_facility,borocd == input$boro1)
@@ -658,8 +643,10 @@ server <- function(input, output) {
     })
     
     output$slickr <- renderSlickR({
-      imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
-      slickR(imgs)
+      imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".png", full.names = TRUE)
+      img1 <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
+      img <- c(imgs,img1)
+      slickR(img)
     })
 
     output$tableNYC <- DT::renderDataTable({

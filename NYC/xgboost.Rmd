@@ -18,7 +18,7 @@ library(readxl)
 library(randomForest)
 library(pdp)
 library(corrplot)
-library(RColorBrewer)
+library(iml)
 library(vip)
 sat<-read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
 sat<-sat%>%
@@ -122,5 +122,13 @@ input3<-as.data.frame(na.omit(input))
 M <- cor(input3)
 corrplot(M, type = "lower", order = "hclust",
          col =colorRampPalette(c("blue","white","red"))(200))
+```
+
+Shapley Plot
+```{r}
+# shap_data <- as.data.frame(cbind(predxgb,input2))
+# mod <-  Predictor$new(model_3, data = as.data.frame(input2))
+# x.int <- input2[1,]
+# shapley <- Shapley$new(mod,x.interest = as.data.frame(x.int)
 
 ```

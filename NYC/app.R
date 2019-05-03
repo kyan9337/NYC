@@ -262,7 +262,7 @@ ui <- dashboardPage(
                      )
                      
             ),
-<<<<<<< HEAD
+
             menuItem("Education", tabName = "education", icon = icon("question-circle"),
                      menuItem("Simple comparsion",
                               tabName = "Difference",
@@ -279,9 +279,9 @@ ui <- dashboardPage(
                      
                      
                      ),
-=======
+
             
->>>>>>> 3fd4c9f078f562044dc7bb0ea2d28c3e9dedba72
+
             menuItem("About", tabName = "about", icon = icon("question-circle"))
         )
     ),

@@ -14,8 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(glmnet)
 library(devtools)
+library(readxl)
 library(randomForest)
 library(pdp)
+library(corrplot)
+library(RColorBrewer)
 library(vip)
 sat<-read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
 sat<-sat%>%
@@ -29,6 +32,7 @@ set.seed(999)
 sat_1<-sat[,c(12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,36)]
 sat_2<- na.omit(sat_1)
 sat_2<-sat_2[,-15]
+colnames(sat_2)<-c("Enrollment","ELL","Stu_dis","Self_con","Free_lunch","Blc_His","Overage","Eng_prof","Math_prof","Perc_asian","Perc_blc","Perc_his","Perc_wht","Perc_other","sat")
 index <- sample(nrow(sat_2),0.7*nrow(sat_2),replace = FALSE)
 train <- sat_2[index,]
 test <- sat_2[-index,]
@@ -65,7 +69,7 @@ plot(guitu)
 
 ```{r}
 library(xgboost)
-model_3<- xgboost(data = input, label = output, max.depth = 2, eta = 0.4, nthread =2 , nrounds = 50)
+model_3<- xgboost(data = as.matrix(input), label = output, max.depth = 2, eta = 0.4, nthread =2 , nrounds = 50)
 predxgb <- predict(model_3, newdata = input2, type = "response")
 rssxgb <- sum((output2 - predxgb)^2)/nrow(input2)
 sqrt(rssxgb)
@@ -91,10 +95,32 @@ xgb.plot.importance(imp)
 vip(model_3,num_features = 10) # Another way to plot variable importance
 
 # Partial dependence plot
-p1 <- partial(model_3,pred.var = "Enrollment", ice = TRUE, center = TRUE, 
-              plot = TRUE, rug = TRUE, alpha = 0.1, plot.engine = "ggplot2", 
-              train = input)
+#English Proficiency
+p1 <- partial(model_3,
+            pred.var = "Eng_prof", 
+            ice = TRUE,
+            center = TRUE, plot = TRUE, rug = TRUE, 
+            alpha =0.1, plot.engine = "ggplot2", 
+            train = input,
+            type = "regression")
+p1
+#Math Proficiency
+p2 <- partial(model_3,
+            pred.var = "Math_prof", 
+            ice = TRUE,
+            center = TRUE, plot = TRUE, rug = TRUE, 
+            alpha =0.1, plot.engine = "ggplot2", 
+            train = input,
+            type = "regression")
+p2
 
-partial(model_3, pred.var = "Enrollment",dtrain=input)
 ```
 
+Correlation Plot
+```{r}
+input3<-as.data.frame(na.omit(input))
+M <- cor(input3)
+corrplot(M, type = "lower", order = "hclust",
+         col =colorRampPalette(c("blue","white","red"))(200))
+
+```

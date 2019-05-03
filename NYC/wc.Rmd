@@ -1,0 +1,50 @@
+---
+title: "Data_P"
+author: "Mark"
+date: "5/2/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readr)
+library(wordcloud2)
+library(tm)
+library(SnowballC)
+```
+
+```{r}
+school_location <- read.csv("Archived_DOE_High_School_Directory_2014-2015.csv") %>% 
+  select(1,3,21,22,24,27,40,41)
+school_location$overview_paragraph <- as.character(school_location$overview_paragraph)
+
+highlight <- school_location$program_highlights
+highlight <- Corpus(VectorSource(highlight))
+# Convert the text to lower case
+highlight <- tm_map(highlight, content_transformer(tolower))
+# Remove numbers
+highlight <- tm_map(highlight, removeNumbers)
+# Remove english common stopwords
+highlight <- tm_map(highlight, removeWords, stopwords("english"))
+# Remove your own stop word
+tm_map(highlight, removeWords, "college")
+# specify your stopwords as a character vector
+highlight <- tm_map(highlight, removeWords, c("blabla1", "blabla2")) 
+# Remove punctuations
+highlight <- tm_map(highlight, removePunctuation)
+# Eliminate extra white spaces
+highlight <- tm_map(highlight, stripWhitespace)
+# Text stemming
+# docs <- tm_map(docs, stemDocument)
+dtm <- TermDocumentMatrix(highlight)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+wordcloud2(d, size = 0.8, minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
+#11R
+
+
+
+```

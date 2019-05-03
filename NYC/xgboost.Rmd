@@ -17,6 +17,8 @@ library(devtools)
 library(readxl)
 library(randomForest)
 library(pdp)
+library(corrplot)
+library(RColorBrewer)
 library(vip)
 sat<-read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
 sat<-sat%>%
@@ -114,3 +116,11 @@ p2
 
 ```
 
+Correlation Plot
+```{r}
+input3<-as.data.frame(na.omit(input))
+M <- cor(input3)
+corrplot(M, type = "lower", order = "hclust",
+         col =colorRampPalette(c("blue","white","red"))(200))
+
+```

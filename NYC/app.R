@@ -262,7 +262,26 @@ ui <- dashboardPage(
                      )
                      
             ),
-            menuItem("Education", tabName = "education", icon = icon("question-circle")),
+
+            menuItem("Education", tabName = "education", icon = icon("question-circle"),
+                     menuItem("Mapping",
+                              tabName = "edu_mapping",
+                              icon = icon("bar-chart-o")
+                              
+                     ),
+                     menuItem("Distribution",
+                              tabName = "edu_dis",
+                              icon = icon("bar-chart-o")
+                              
+                     ) 
+                     
+                     
+                     
+                     
+                     ),
+
+            
+
             menuItem("About", tabName = "about", icon = icon("question-circle"))
         )
     ),
@@ -501,6 +520,30 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             ),
             
             tabItem(
+              tabName = "edu_dis",
+              fluidRow(
+                column(width = 12,
+                       box(width=12,title = "Shooting points", solidHeader = TRUE,
+                           plotOutput("edu_distribution",height = 500))),
+                column(width = 12,
+                       box(width = 12,title="Arresting points", solidHeader = TRUE
+                           )
+              )
+            ),
+            
+            tabItem(
+              tabName = "edu_mapping",
+              fluidRow(
+                column(width = 12,
+                       box(width=12,title = "Shooting points", solidHeader = TRUE,
+                           leafletOutput("shooting_map",height = 500))),
+                column(width = 12,
+                       box(width = 12,title="Arresting points", solidHeader = TRUE,
+                           leafletOutput("arrest_map",height = 500)))
+              )
+            ),
+            
+            tabItem(
                 tabName = "about",
                 fluidRow(
                   column(width = 12,
@@ -520,7 +563,7 @@ Before you go to New York, please check our Shiny to truly get to know New York!
             )
         )
     )
-)
+))
 
 
 # Define server logic required to draw a histogram
@@ -564,26 +607,7 @@ server <- function(input, output) {
         arrange(desc(count))
     })
     
-    output$progressBox55 <- renderValueBox({
-      fac55 <- filter(count, borocd ==input$boro2 & facdomain =="Libraries and Cultural Programs" )
-      
-      valueBox(
-        
-        paste0(fac55$n), "Libraries and Cultural Programs", icon = icon("archive"),
-        color = "yellow"
-      )
-    })
-    
-    output$progressBox66 <- renderValueBox({  
-      fac66 <- filter(count, borocd ==input$boro2 & facdomain =="Parks, Gardens, and Historical Sites" )
-      valueBox(
-        
-        
-        paste0(fac66$n), "Parks, Gardens, and Historical Sites", icon = icon("baseball-ball"),
-        color = "maroon"
-      )
-    })
-    
+  
     output$facility_1 <- renderLeaflet({
       
       F1 <- filter(All_facility,borocd == input$boro1)
@@ -643,8 +667,10 @@ server <- function(input, output) {
     })
     
     output$slickr <- renderSlickR({
-      imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
-      slickR(imgs)
+      imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".png", full.names = TRUE)
+      img1 <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
+      img <- c(imgs,img1)
+      slickR(img)
     })
 
     output$tableNYC <- DT::renderDataTable({
@@ -726,7 +752,29 @@ server <- function(input, output) {
         theme(legend.position = "none")
       ggplotly(BM_open)
     })
- }
+ 
+
+    output$edu_distribution <- renderPlot({
+      
+      hs_data<-readxl::read_excel("2013-2014_High_School_School_Quality_Reports.xlsx")
+      names(hs_data)[36] <-"sat" 
+      mean_sat <- mean(hs_data$sat,na.rm = TRUE)
+      median_sat <- median(hs_data$sat,na.rm = TRUE)
+      
+      edu_dis <- hs_data %>%
+        ggplot(aes(x=sat))+
+        geom_histogram(fill="blue",alpha=0.5,col="black")+
+        ylab("School Count")+
+        xlab("Average SAT Score")+
+        geom_vline(xintercept = mean_sat,linetype = 2,col="yellow")+
+        geom_vline(xintercept = median_sat,linetype="dotdash",col="green")+
+        geom_text(aes(x = 1200, y = 60, label = "Median=1209", show.legend=F)) + 
+        geom_text(aes(x = 1255, y = 50, label = "Mean=1255", show.legend=F)) 
+      ggplot(edu_dis)
+    })
+    
+}
+
 
 
 # Run the application

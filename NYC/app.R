@@ -262,7 +262,22 @@ ui <- dashboardPage(
                      )
                      
             ),
-            menuItem("Education", tabName = "education", icon = icon("question-circle")),
+            menuItem("Education", tabName = "education", icon = icon("question-circle"),
+                     menuItem("Simple comparsion",
+                              tabName = "Difference",
+                              icon = icon("bar-chart-o")
+                              
+                     ),
+                     menuItem("flood risk",
+                              tabName = "flood",
+                              icon = icon("bar-chart-o")
+                              
+                     ) 
+                     
+                     
+                     
+                     
+                     ),
             menuItem("About", tabName = "about", icon = icon("question-circle"))
         )
     ),

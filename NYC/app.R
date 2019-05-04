@@ -203,24 +203,7 @@ logo_blue_gradient <- shinyDashboardLogoDIY(
   
 )
 
-#Guangyan education data
-education_degree<-read.csv("Education_degree.csv")
-School_Locations<-read.csv("School_Locations.csv")
-colnames(education_degree)[1] <- "communityDistrict"
-School_Locations$Lon[134]<-gsub("\\(","",School_Locations$Lon[134])
-School_Locations$Lon<-as.numeric(as.character(School_Locations$Lon))
-School_Locations<-School_Locations[-which(is.na(School_Locations$Lon)),]
 
-edudata<-sp::merge(nyc_boroughs,education_degree,by = "communityDistrict",sort=FALSE,duplicateGeoms = TRUE,all.x=FALSE)
-
-pal0 <- colorNumeric("RdPu", domain = education_degree$complete_bach_cd)
-labels <- sprintf(
-  "<strong>%s</strong><br/>%s Not Complete High School<br/>%s High School Completed<br/>%s Bachelor Completed<br/>%s Master Completed",
-  edudata$communityDistrict, paste(edudata$no_hs_cd,"%",sep=""),
-  paste(edudata$complete_hs_somecollege_cd,"%",sep=""),
-  paste(edudata$complete_bach_cd,"%",sep=""),
-  paste(edudata$grad_degree_cd,"%",sep="")
-) %>% lapply(htmltools::HTML)
 
 
 ui <- dashboardPage(
@@ -772,6 +755,25 @@ server <- function(input, output) {
   })
   
   output$edu_map <- renderLeaflet ({
+    #Guangyan education data
+    education_degree<-read.csv("Education_degree.csv")
+    School_Locations<-read.csv("School_Locations.csv")
+    colnames(education_degree)[1] <- "communityDistrict"
+    School_Locations$Lon[134]<-gsub("\\(","",School_Locations$Lon[134])
+    School_Locations$Lon<-as.numeric(as.character(School_Locations$Lon))
+    School_Locations<-School_Locations[-which(is.na(School_Locations$Lon)),]
+    
+    edudata<-sp::merge(nyc_boroughs,education_degree,by = "communityDistrict",sort=FALSE,duplicateGeoms = TRUE,all.x=FALSE)
+    
+    pal0 <- colorNumeric("RdPu", domain = education_degree$complete_bach_cd)
+    labels <- sprintf(
+      "<strong>%s</strong><br/>%s Not Complete High School<br/>%s High School Completed<br/>%s Bachelor Completed<br/>%s Master Completed",
+      edudata$communityDistrict, paste(edudata$no_hs_cd,"%",sep=""),
+      paste(edudata$complete_hs_somecollege_cd,"%",sep=""),
+      paste(edudata$complete_bach_cd,"%",sep=""),
+      paste(edudata$grad_degree_cd,"%",sep="")
+    ) %>% lapply(htmltools::HTML)
+    
     leaflet(edudata) %>%
       addTiles() %>% 
       addPolygons(stroke=TRUE,weight=1,

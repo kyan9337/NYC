@@ -220,10 +220,10 @@ ui <- dashboardPage(
       id = "sidebarmenu",
       menuItem("Welcome", tabName = "welcome", icon = icon("certificate",lib = "glyphicon")),
       menuItem("City Overview",
-               tabName = "Overview", icon = icon("venus"),
+               tabName = "Overview", icon = icon("building"),
                menuItem("Mapping View",
                         tabName = "map_overall",
-                        icon = icon("bed")
+                        icon = icon("map")
                         
                ),
                menuItem("Data Visualization",
@@ -232,11 +232,11 @@ ui <- dashboardPage(
                ),
                menuItem("Data",
                         tabName = "DT",
-                        icon = icon("refresh")
+                        icon = icon("table")
                )
       ),
       menuItem("Distric Detail",
-               tabName = "Compare", icon = icon("venus"),
+               tabName = "Compare", icon = icon("search-plus"),
                menuItem("Simple comparsion",
                         tabName = "Difference",
                         icon = icon("bar-chart-o")
@@ -244,19 +244,19 @@ ui <- dashboardPage(
                ),
                menuItem("flood risk",
                         tabName = "flood",
-                        icon = icon("bar-chart-o")
+                        icon = icon("water")
                         
                ),
                menuItem("Safety",
                         tabName = "safety",
-                        icon = icon("bar-chart-o")
+                        icon = icon("user-shield")
                         
                ),
                
                
                menuItem("Facilities",
                         tabName = "facility",
-                        icon = icon("bar-chart-o")
+                        icon = icon("accessible-icon")
                         
                )
                

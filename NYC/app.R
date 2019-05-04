@@ -40,6 +40,9 @@ library(d3r)
 map_data <- read.csv("map_data.csv")
 map_data_nyc <- map_data
 dfi <- read.csv("all_borough_v2.csv")
+dfi_1<-dfi%>%
+  filter(subborough!= "Other_Manhattan")%>%
+  filter(subborough!= "Other_Bronx")
 nycounties <- geojsonio::geojson_read("Community Districts.geojson",
                                       what = "sp")
 map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
@@ -164,9 +167,9 @@ poverty<-function(a,b){
 }
 
 
-sun_1<-dfi[,c(42,43,44,45,198,199)]
+sun_1<-dfi_1[,c(42,43,44,45,198,199)]
 sun_1$def<-rep("facility", length(sun_1$count_public_schools))
-sun_2<-dfi[,c(33,198,199)]
+sun_2<-dfi_1[,c(33,198,199)]
 sun_2$def<-rep("lots",length(sun_2$lots_public_facility_institution))
 
 mydata1<-melt(sun_1,id.vars=c("borough","subborough","def"),
@@ -519,6 +522,11 @@ ui <- dashboardPage(
           column(width = 12,
                  box(width=12,title = "Average SAT Score Distribution", solidHeader = TRUE,
                      plotOutput("edu_distribution",height = 500)))
+        ),
+        fluidRow(
+          column(width = 12,
+                 box(width=12,title = "Extracurricular Activities Word Cloud", solidHeader = TRUE,
+                     plotOutput("mssp",height = 500)))
         )
         ),
       
@@ -651,7 +659,7 @@ server <- function(input, output) {
   output$slickr <- renderSlickR({
     imgs <- list.files("www", pattern=".png", full.names = TRUE)
     img1 <- list.files("www", pattern=".jpg", full.names = TRUE)
-    img <- c(imgs,img1)
+    img <- c(img1,imgs)
     slickR(img)
   })
   
@@ -797,6 +805,10 @@ server <- function(input, output) {
     
   })
   
+  output$mssp<- renderImage({
+    Leg<-"www/Wechat.png"
+    list(src=Leg,width = 1580,height = 480)
+  },deleteFile = FALSE)  
 
 }
 

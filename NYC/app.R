@@ -384,7 +384,7 @@ ui <- dashboardPage(
         tabName = "map_overall",
         
         fluidRow(
-          box(width = NULL, status = "primary",
+          box(width = 3, status = "primary",
               
               
               radioButtons("Variable", "Compare Variable",
@@ -412,8 +412,8 @@ ui <- dashboardPage(
                  schools and institutions, libraries, parks). For example, 
                  when you clic in Greenwich Village/Financial District in Manhattan, you will see that 77.6% of the land area
                  is occupied as parking lots and 22.4% is facilities. Among the facilities’ land, 49% is public schools’ land, 
-                 28% is parks’ land, 19% is health facilities’ land and 4% is libraries’ land.",size = 10,style = "font-family: 'Arial',")),
-          box(title= "Land use sunburst plot", status = "primary", width= 12, solidHeader = TRUE, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
+                 28% is parks’ land, 19% is health facilities’ land and 4% is libraries’ land.",size = 10,style = "font-family: 'Arial',"),width=12),
+          box(title= "Land use sunburst plot", status = "primary", width= 12, sund2bOutput("sunburstPlot", height = "750", width = "100%"))
           )
           ),
       

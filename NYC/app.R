@@ -203,6 +203,26 @@ logo_blue_gradient <- shinyDashboardLogoDIY(
   
 )
 
+#Guangyan education data
+education_degree<-read.csv("Education_degree.csv")
+School_Locations<-read.csv("School_Locations.csv")
+colnames(education_degree)[1] <- "communityDistrict"
+School_Locations$Lon[134]<-gsub("\\(","",School_Locations$Lon[134])
+School_Locations$Lon<-as.numeric(as.character(School_Locations$Lon))
+School_Locations<-School_Locations[-which(is.na(School_Locations$Lon)),]
+
+edudata<-sp::merge(nyc_boroughs,education_degree,by = "communityDistrict",sort=FALSE,duplicateGeoms = TRUE,all.x=FALSE)
+
+pal0 <- colorNumeric("RdPu", domain = education_degree$complete_bach_cd)
+labels <- sprintf(
+  "<strong>%s</strong><br/>%s Not Complete High School<br/>%s High School Completed<br/>%s Bachelor Completed<br/>%s Master Completed",
+  edudata$communityDistrict, paste(edudata$no_hs_cd,"%",sep=""),
+  paste(edudata$complete_hs_somecollege_cd,"%",sep=""),
+  paste(edudata$complete_bach_cd,"%",sep=""),
+  paste(edudata$grad_degree_cd,"%",sep="")
+) %>% lapply(htmltools::HTML)
+
+
 ui <- dashboardPage(
   # skin = "purple",
   dashboardHeader(
@@ -239,12 +259,12 @@ ui <- dashboardPage(
                tabName = "Compare", icon = icon("search-plus"),
                menuItem("Simple comparsion",
                         tabName = "Difference",
-                        icon = icon("bar-chart-o")
+                        icon = icon("transfer",lib = "glyphicon")
                         
                ),
                menuItem("flood risk",
                         tabName = "flood",
-                        icon = icon("water")
+                        icon = icon("tint")
                         
                ),
                menuItem("Safety",
@@ -262,10 +282,10 @@ ui <- dashboardPage(
                
       ),
       
-      menuItem("Education", tabName = "education", icon = icon("question-circle"),
+      menuItem("Education", tabName = "education", icon = icon("book"),
                menuItem("Mapping",
                         tabName = "edu_mapping",
-                        icon = icon("bar-chart-o")
+                        icon = icon("map")
                         
                ),
                menuItem("Distribution",
@@ -358,16 +378,9 @@ ui <- dashboardPage(
           
         ),
         br(),
-        br(),
-        br(),
-        br(),
-        br(),
-        br(),
-        br(),
         fluidRow((
-          column(width = 6,
-                 box(width=12,solidHeader = FALSE, background= "olive",
-                     title="Introduction",
+          column(width = 12,
+                 box(width=12,solidHeader = FALSE,
                      h4("Welcome to our Shiny App!"
                         ,size = 10,style = "font-family: 'Arial'," ),
                      h4("Location!",size = 10,style = "font-family: 'Arial'," ),
@@ -527,21 +540,24 @@ ui <- dashboardPage(
         ),
       
       tabItem(
+        tabName = "edu_mapping",
+        fluidRow(
+          column(width = 12,
+                 box(width=12,title = "Education Degree", solidHeader = TRUE,
+                     leafletOutput("edu_map",height = 500)))
+        )
+      ),
+      
+      tabItem(
         tabName = "about",
         fluidRow(
           column(width = 12,
                  box(width=NULL, status = "primary"
                  ))),
+        h3("Contact information"),
         br(),
-        valueBoxOutput("userguide"),
-        br(),
-        br(),
-        br(),
-        br(),
-        br(),
-        h4("Contact information"),
         h4("Instructor: Haviland Wright"),
-        h4("abcd"),
+        h4("Authors: abcd"),
         h4("Contact us at mssp@bu.edu")
       )
           )
@@ -650,8 +666,8 @@ server <- function(input, output) {
   })
   
   output$slickr <- renderSlickR({
-    imgs <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".png", full.names = TRUE)
-    img1 <- list.files("F:/MSSP/MA676/NYC/NYC/www", pattern=".jpg", full.names = TRUE)
+    imgs <- list.files("www", pattern=".png", full.names = TRUE)
+    img1 <- list.files("www", pattern=".jpg", full.names = TRUE)
     img <- c(imgs,img1)
     slickR(img)
   })
@@ -755,6 +771,31 @@ server <- function(input, output) {
     edu_dis
   })
   
+  output$edu_map <- renderLeaflet ({
+    leaflet(edudata) %>%
+      addTiles() %>% 
+      addPolygons(stroke=TRUE,weight=1,
+                  fillOpacity = 0.5,
+                  smoothFactor = 0.5,color = "black",fillColor = ~pal0(complete_bach_cd),
+                  highlight = highlightOptions(weight = 5, color = "#666", 
+                                               fillOpacity = 0.7,bringToFront = TRUE),
+                  label = labels,
+                  labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "3px 8px"),
+                    textsize = "15px",
+                    direction = "auto")
+      ) %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(-73.91, 40.70, zoom = 10) %>%
+      addLegend(pal = pal0, values = ~complete_bach_cd, opacity = 0.7, 
+                title ='Percentage of bachelors among <br/> people above 25 years old',
+                position = "bottomright") %>%
+      addMarkers(data=School_Locations, popup = ~as.character(LOCATION_NAME),
+                 clusterOptions = markerClusterOptions())
+    
+  })
+  
+
 }
 
 

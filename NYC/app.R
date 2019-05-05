@@ -48,7 +48,7 @@ nycounties <- geojsonio::geojson_read("Community Districts.geojson",
 map_data <- geo_join(nycounties, map_data, "boro_cd", "borocd",how="inner")
 pal <- colorNumeric("viridis", NULL)
 borough <- c("Manhattan","Queens","Brooklyn","Bronx","Staten Island")
-chos <- c("Population"="pop_2010", "acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
+chos <- c("Population"="pop_2010", "Acres"="acres","Crime Rate"="crime_per_1000","Park Number"="count_parks",
           "Hospital Number"="count_hosp_clinic","Library Number"="count_libraries","Public School Number"="count_public_schools",
           "Building Density"="build_dens","Rent Burden"="pct_hh_rent_burd")
 
@@ -150,7 +150,7 @@ education<-function(a,b){
     filter(borough == a | borough == b)%>%
     plot_ly(labels = ~subborough, values = ~pct_bach_deg)%>%
     add_pie(hole = 0.6)%>%
-    layout(title = "Crime rate",  showlegend = F,
+    layout(title = "Education",  showlegend = F,
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
   
@@ -248,7 +248,7 @@ ui <- dashboardPage(
                         icon = icon("transfer",lib = "glyphicon")
                         
                ),
-               menuItem("flood risk",
+               menuItem("Flood Risk",
                         tabName = "flood",
                         icon = icon("tint")
                         
@@ -359,7 +359,8 @@ ui <- dashboardPage(
         ,
         fluidRow(
           mainPanel(
-            slickROutput("slickr", width="150%"))
+            slickROutput("slickr", width="150%")
+           )
           
           
         ),
@@ -370,8 +371,9 @@ ui <- dashboardPage(
                      h4("Welcome to our Shiny App!"
                         ,size = 10,style = "font-family: 'Arial'," ),
                      h4("Location!",size = 10,style = "font-family: 'Arial'," ),
-                     h4("Location!",size = 10,style = "font-family: 'Arial'," ),
-                     h4("Location! Location is what we care about!
+                     h4("Location!!",size = 10,style = "font-family: 'Arial'," ),
+                     h4("Location!!!",size = 10,style = "font-family: 'Arial'," ),
+                     h4("Location is what we care about!
                         Before you go to New York, please check our Shiny to truly get to know New York!",size = 10,style = "font-family: 'Arial'," )
                      ) )
                  )

@@ -201,7 +201,7 @@ logo_blue_gradient <- shinyDashboardLogoDIY(
   ,badgeText = "MSSP"
   ,badgeTextColor = "rgb(105,105,105)"
   ,badgeTextSize = 2
-  ,badgeBackColor = "#40E0D0"
+  ,badgeBackColor = "#FF69B4"
   ,badgeBorderRadius = 3
   
 )
@@ -293,7 +293,7 @@ ui <- dashboardPage(
   
   dashboardBody(
     shinyDashboardThemes(
-      theme = "grey_dark"
+      theme = "boe_website"
     ),
     tags$head(tags$style(HTML('
                               .same-row {
@@ -368,12 +368,12 @@ ui <- dashboardPage(
         fluidRow((
           column(width = 12,
                  box(width=12,solidHeader = FALSE,
-                     h4("Welcome to our Shiny App!"
-                        ,size = 10,style = "font-family: 'Arial'," ),
-                     h4("Location!",size = 10,style = "font-family: 'Arial'," ),
-                     h4("Location!!",size = 10,style = "font-family: 'Arial'," ),
-                     h4("Location!!!",size = 10,style = "font-family: 'Arial'," ),
-                     h4("Location is what we care about!
+                     h3("Welcome to our Shiny App!"
+                        ,size = 15,style = "font-family: 'Arial'," ),
+                     h3("Location!",size = 10,style = "font-family: 'Arial'," ),
+                     h3("Location!!",size = 10,style = "font-family: 'Arial'," ),
+                     h3("Location!!!",size = 10,style = "font-family: 'Arial'," ),
+                     h3("Location is what we care about!
                         Before you go to New York, please check our Shiny to truly get to know New York!",size = 10,style = "font-family: 'Arial'," )
                      ) )
                  )

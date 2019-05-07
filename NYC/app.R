@@ -543,10 +543,6 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "about",
-        fluidRow(
-          column(width = 12,
-                 box(width=NULL, status = "primary"
-                 ))),
         h3("Contact information"),
         br(),
         h4("Instructor: Haviland Wright"),
@@ -773,12 +769,20 @@ server <- function(input, output) {
     School_Locations$Lon<-as.numeric(as.character(School_Locations$Lon))
     School_Locations<-School_Locations[-which(is.na(School_Locations$Lon)),]
     
+    #add borough name to education_degree
+    borough_name <- as.data.frame(cmd)
+    borough_name$name <- rownames(borough_name)
+    education_degree$communityDistrict <- as.factor(education_degree$communityDistrict)
+    colnames(borough_name)[1] <- "communityDistrict"
+    education_degree <- left_join(education_degree,borough_name,by="communityDistrict")
+    
+    
     edudata<-sp::merge(nyc_boroughs,education_degree,by = "communityDistrict",sort=FALSE,duplicateGeoms = TRUE,all.x=FALSE)
     
     pal0 <- colorNumeric("RdPu", domain = education_degree$complete_bach_cd)
     labels <- sprintf(
       "<strong>%s</strong><br/>%s Not Complete High School<br/>%s High School Completed<br/>%s Bachelor Completed<br/>%s Master Completed",
-      edudata$communityDistrict, paste(edudata$no_hs_cd,"%",sep=""),
+      edudata@data$name.y, paste(edudata$no_hs_cd,"%",sep=""),
       paste(edudata$complete_hs_somecollege_cd,"%",sep=""),
       paste(edudata$complete_bach_cd,"%",sep=""),
       paste(edudata$grad_degree_cd,"%",sep="")

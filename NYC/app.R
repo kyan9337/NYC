@@ -309,7 +309,7 @@ ui <- dashboardPage(
                     .box.box-solid.box-primary>.box-header {
                     
                     
-                    background:#666666;
+                    background:#4d3a7d;
                     
                     }
                     .box.box-solid.box-primary{
@@ -392,7 +392,7 @@ ui <- dashboardPage(
                            
                            chos,
                            
-                           selected = chos[1])
+                           selected = chos[5])
               
           ),
           box(width = 9,height = 9,
@@ -467,8 +467,8 @@ ui <- dashboardPage(
         fluidRow(
           column(width = 2,
                  box(status = "primary", width = NULL,
-                     selectInput("borough1","Select borough 1:",borough,selected = borough[1]),
-                     selectInput("borough2","Select borough 2:" ,borough,selected = borough[3])
+                     selectInput("borough1","Select borough 1:",borough,selected = borough[3]),
+                     selectInput("borough2","Select borough 2:" ,borough,selected = borough[4])
                  )),
           column(width = 10,
                  box(title = "Rent Burden", solidHeader = TRUE,
@@ -502,7 +502,7 @@ ui <- dashboardPage(
         fluidRow(
           column(width = 2,
                  box(status = "primary", width = NULL,
-                     selectInput("borough111","Select borough 1:",borough,selected = borough[1]),
+                     selectInput("borough111","Select borough 1:",borough,selected = borough[4]),
                      selectInput("borough222","Select borough 2:" ,borough,selected = borough[3])))
           ,
           column(width = 10,
@@ -550,7 +550,7 @@ ui <- dashboardPage(
         h3("Contact information"),
         br(),
         h4("Instructor: Haviland Wright"),
-        h4("Authors: abcd"),
+        h4("This Shiny Dashboard developed by: Tingrui Huang, Xiangliang Liu, Hao Qin, Qianhui Rong, Xinyi Wang, Jinfei Xue, Guangyan Yu, Jianhao Yan and Kaiyu Yan "),
         h4("Contact us at mssp@bu.edu")
       )
           )
